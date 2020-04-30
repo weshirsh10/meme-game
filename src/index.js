@@ -1,13 +1,29 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
 import * as serviceWorker from './serviceWorker';
+import { Route, BrowserRouter as Router } from 'react-router-dom';
+import LoginComponent from './login/login';
+import LobbyComponent from './lobby/lobby'
+import FirebaseService from './services/firebase'
+
+
+//initialize FB connection
+ const firebase = new FirebaseService();
+ firebase.initialize();
+
+const routing = (
+  <Router>
+    <div id='routing-container'>
+      <Route path="/login" component={ LoginComponent }></Route>
+      <Route path="/lobby" component={ LobbyComponent }></Route>
+
+    </div>
+  </Router>
+);
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  routing,
   document.getElementById('root')
 );
 
