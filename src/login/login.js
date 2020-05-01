@@ -38,6 +38,7 @@ class LoginComponent extends React.Component {
         firebase.getUserStatus().onAuthStateChanged(
             user => {
                 console.log("User", user)
+                //Get User and game from firebase
                 if(user){
                     this.props.history.push('/lobby')
                 }
@@ -121,20 +122,15 @@ class LoginComponent extends React.Component {
     //Join As Host
     onClickHost = (e) => {
         e.preventDefault();
-        console.log("Host Clicked")
         if(!this.formIsValid()) {
             this.setState({nameError: "Name must be at least 3 characters"});
         }
         else {
             this.setState({nameError: ""})
-            console.log("creating Room")
-            //Create new room in firebase
-
             firebase.createRoom(this.state.name)
-            .then( () => {
+            .then( (resp) => {
                 console.log("Check Firebase")
-                firebase.createUser()
-                this.props.history.push('/lobby')
+                this.props.history.push('/lobby/' + resp[1]+ "/" + this.state.name)
             }, dbError =>{
                 console.log("DBerror", dbError)
             }
@@ -149,18 +145,12 @@ class LoginComponent extends React.Component {
 
         firebase.joinRoom(this.state.name, this.state.roomCode)
         .then( () => {
-            firebase.createUser()
-            this.props.history.push('/lobby')
+            this.props.history.push('/lobby/' + this.state.roomCode + "/" + this.state.name)
         },dbError => {
             this.setState({roomError: "Invalid Room Code"});
         })
-        // let playerObj = {
-        //     name: this.state.name
-        // }
-       
-        
-        
-        // )
+
+
     }
 
     onSubmitLogin = (e) => {

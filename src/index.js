@@ -16,7 +16,7 @@ const routing = (
   <Router>
     <div id='routing-container'>
       <Route path="/login" component={ LoginComponent }></Route>
-      <Route path="/lobby" component={ LobbyComponent }></Route>
+      <Route path="/lobby/:room/:name" component={ LobbyComponent }></Route>
 
     </div>
   </Router>
