@@ -17,7 +17,7 @@ class FirebaseService {
 
     createRoom = async (hostName) => {
         let code = Math.random().toString(36).slice(2).substr(0,4)
-        let user = await this.createUser()
+        let user = await this.createUser(hostName, code)
 
         let playerObj = {}
         playerObj[user] = {
@@ -42,7 +42,7 @@ class FirebaseService {
 
     joinRoom = async (playerName, roomCode) => {
 
-        let user = await this.createUser()
+        let user = await this.createUser(playerName, roomCode)
         console.log(user)
 
         //TODO
@@ -63,11 +63,44 @@ class FirebaseService {
 
     }
 
-    createUser = async () => {
+    createUser = async (name, roomCode) => {
+
+        let userObj = {
+            name: name,
+            room: roomCode
+        }
+
+       
         let user = await firebase.auth().signInAnonymously()
+        // .then( (e) => {
+        //     // console.log("then", e)
+        //     // firebase
+        //     // .firestore()
+        //     // .collection("users")
+        //     // .doc(e.user.uid)
+        //     // .set(userObj)
+        // })
+
+        firebase
+        .firestore()
+        .collection("users")
+        .doc(user.user.uid)
+        .set(userObj)
+
+    
+
+
         return user.user.uid
 
-    } 
+    }
+    
+    getUser = (userName) => {
+        return firebase
+        .firestore()
+        .collection("users")
+        .doc(userName)
+        .get()
+    }
 
     getUserStatus = () => {
         return firebase.auth()

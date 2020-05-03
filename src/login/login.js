@@ -35,12 +35,19 @@ class LoginComponent extends React.Component {
 
     componentDidMount() {
         console.log("mounted")
+        let user = {}
         firebase.getUserStatus().onAuthStateChanged(
             user => {
-                console.log("User", user)
                 //Get User and game from firebase
                 if(user){
-                    this.props.history.push('/lobby')
+                    console.log("USER", user.uid)
+                    firebase.getUser(user.uid)
+                    .then( e => {
+                        let data = e.data()
+                        this.props.history.push('/lobby/' + data.room + '/' + data.name )
+
+                    })
+
                 }
             }
         )
@@ -83,7 +90,7 @@ class LoginComponent extends React.Component {
                             <Input autoComplete='Room Code' onChange={(e) => this.userTyping('roomCode', e)} autoFocus id='room-code-input'></Input>
                         </FormControl>
                         <Box display="flex" justifyContent="center" alignItems="center">
-                            <Button type='submit' onClick={(e) => this.onClickJoin(e)} variant='contained' color='primary' className={classes.submit}>Join</Button>
+                            <Button type='submit' onClick={(e) => this.onClickJoin(e)} variant='contained' color='primary' className={classes.submit}>Enter</Button>
                         </Box>
                     </form>
                     :null
