@@ -44,7 +44,17 @@ class LoginComponent extends React.Component {
                     firebase.getUser(user.uid)
                     .then( e => {
                         let data = e.data()
-                        this.props.history.push('/lobby/' + data.room + '/' + data.name )
+
+                        firebase.roomIsValid(data.room).then( room => {
+                            if(room) {
+                                console.log("ROOM EXISTED", room.data())
+                                this.props.history.push('/lobby/' + data.room + '/' + data.name )
+                            }
+
+
+                        })
+
+
 
                     })
 
@@ -154,6 +164,8 @@ class LoginComponent extends React.Component {
         .then( () => {
             this.props.history.push('/lobby/' + this.state.roomCode + "/" + this.state.name)
         },dbError => {
+            console.log(dbError)
+            firebase.deleteUser()
             this.setState({roomError: "Invalid Room Code"});
         })
 

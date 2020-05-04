@@ -13,9 +13,13 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import FirebaseService from '../services/firebase'
 import { firestore } from 'firebase';
 
+
 const firebase = require('firebase')
+const fbService = new FirebaseService();
+
 
 class LobbyComponent extends React.Component {
 
@@ -87,6 +91,8 @@ class LobbyComponent extends React.Component {
     }
 
     onClickStart = (e) => {
+        //move game state to round1
+        fbService.updateRoomState(this.state.room, "round1")
         this.props.history.push('/game/' + this.state.room + '/' + this.state.name)
     }
 

@@ -9,16 +9,18 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import FirebaseService from '../services/firebase'
+import UploadComponent from './judge/upload'
+// import FirebaseService from '../services/firebase'
 
 
-const firebase = new FirebaseService();
+
+// const firebase = new FirebaseService();
 
 class GameComponent extends React.Component {
 
     render() {
         return(
-            <div>Game Comp</div>
+            <UploadComponent></UploadComponent>
         )
     }
 }

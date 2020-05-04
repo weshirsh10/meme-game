@@ -1,3 +1,5 @@
+import { firestore } from 'firebase';
+
 const firebase = require('firebase')
 
 class FirebaseService {
@@ -21,7 +23,8 @@ class FirebaseService {
 
         let playerObj = {}
         playerObj[user] = {
-            name:hostName
+            name:hostName,
+            turn: 1
         }
 
         let roomObj = {
@@ -40,17 +43,30 @@ class FirebaseService {
 
     }
 
+    getPlayers = async (roomCode) => {
+        let roomObj = 
+        firebase.firestore()
+        .collection("rooms")
+        .doc(roomCode)
+        .get()
+        return Object.keys((await roomObj).data().players)
+
+    }
+
     joinRoom = async (playerName, roomCode) => {
+        console.log("IN JOIN ROOM")
+
 
         let user = await this.createUser(playerName, roomCode)
-        console.log(user)
-
+        let players = await this.getPlayers(roomCode)
         //TODO
         //ADD Firebase user ID to player obj
         //Check to see if 8 players in room
 
+
         let playerObj = {
-            name: playerName
+            name: playerName,
+            turn: Object.keys(players).length + 1
         }
 
         return firebase
@@ -63,32 +79,37 @@ class FirebaseService {
 
     }
 
+    roomIsValid = async (roomCode)  => {
+        let room = firebase
+        .firestore()
+        .collection("rooms")
+        .doc(roomCode)
+        .get()
+
+        
+    }
+
+    deleteUser = () => {
+        let user = firebase.auth().currentUser
+        user.delete().then( () => {
+            firebase.firestore().collection("users").doc(user.uid).delete()
+        })
+    }
+
     createUser = async (name, roomCode) => {
 
         let userObj = {
             name: name,
             room: roomCode
         }
-
-       
+    
         let user = await firebase.auth().signInAnonymously()
-        // .then( (e) => {
-        //     // console.log("then", e)
-        //     // firebase
-        //     // .firestore()
-        //     // .collection("users")
-        //     // .doc(e.user.uid)
-        //     // .set(userObj)
-        // })
-
+ 
         firebase
         .firestore()
         .collection("users")
         .doc(user.user.uid)
         .set(userObj)
-
-    
-
 
         return user.user.uid
 
@@ -106,13 +127,12 @@ class FirebaseService {
         return firebase.auth()
     }
 
-    // getCurrentUser = () => {
-    //     console.log("calling func")
-    //     firebase.auth().onAuthStateChanged(user => {
-    //         console.log("User", user)
-    //         return user           
-    //     })
-    // }
+    updateRoomState = (room, _state) => {
+        firebase.firestore()
+        .collection("rooms")
+        .doc(room)
+        .update({state: _state})
+    }
 }
 
 export default FirebaseService
