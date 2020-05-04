@@ -24,7 +24,8 @@ class FirebaseService {
         let playerObj = {}
         playerObj[user] = {
             name:hostName,
-            turn: 1
+            turn: 1,
+            points: 0
         }
 
         let roomObj = {
@@ -66,7 +67,9 @@ class FirebaseService {
 
         let playerObj = {
             name: playerName,
-            turn: Object.keys(players).length + 1
+            turn: Object.keys(players).length + 1,
+            points: 0
+
         }
 
         return firebase

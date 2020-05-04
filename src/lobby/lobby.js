@@ -52,6 +52,11 @@ class LobbyComponent extends React.Component {
                 host: _host
             } )
 
+            if(res.data().state == "round1"){
+                this.props.history.push('/game/' + this.state.room + '/' + this.state.name)
+
+            }
+
         })
         
         
@@ -59,8 +64,6 @@ class LobbyComponent extends React.Component {
 
     render () {
         const { classes } = this.props;
-
-        console.log("Lobby State", this.state)
 
         return (
             <main className={classes.main}>
@@ -96,15 +99,6 @@ class LobbyComponent extends React.Component {
         this.props.history.push('/game/' + this.state.room + '/' + this.state.name)
     }
 
-    // firebaseListener = () => {
-    //     firebase.firestore().collection('rooms')
-    //     .doc(this.state.room)
-    //     .onSnapshot( (snapshot) => {
-    //         console.log("snapshot", snapshot)
-    //     })
-    // }
-
-    
 }
 
 export default withStyles(styles)(LobbyComponent);

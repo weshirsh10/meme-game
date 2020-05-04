@@ -10,19 +10,13 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 
-class UploadComponent extends React.Component {
+class WaitUploadComponent extends React.Component {
 
     render() {
         return(
-            <div>
-                <input type="file" onChange={this.fileSelectedHandler}></input>
-            </div>
+            <div>Waiting Component</div>
         )
-    }
-
-    fileSelectedHandler = event => {
-        console.log(event)    
     }
 }
 
-export default withStyles(styles)(UploadComponent)
+export default withStyles(styles)(WaitUploadComponent)
