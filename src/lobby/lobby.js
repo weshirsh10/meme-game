@@ -52,7 +52,7 @@ class LobbyComponent extends React.Component {
                 host: _host
             } )
 
-            if(res.data().state == "round1"){
+            if(res.data().state == "UPLOAD"){
                 this.props.history.push('/game/' + this.state.room + '/' + this.state.name)
 
             }
@@ -95,7 +95,7 @@ class LobbyComponent extends React.Component {
 
     onClickStart = (e) => {
         //move game state to round1
-        fbService.updateRoomState(this.state.room, "round1")
+        fbService.updateRoomState(this.state.room, "UPLOAD")
         this.props.history.push('/game/' + this.state.room + '/' + this.state.name)
     }
 

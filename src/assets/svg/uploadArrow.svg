@@ -1,0 +1,19 @@
+<svg  id="Layer_1" data-name="Layer 1"
+	xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 219 219">
+	<defs>
+		<style>.cls-1,.cls-2{fill:none;stroke:#9e9d9e;stroke-linecap:round;stroke-miterlimit:10;stroke-width:3px;}.cls-2{stroke-dasharray:12 12;}.cls-3{font-size:12px;font-family:Roboto-Medium, Roboto;font-weight:500;}.cls-3,.cls-4{fill:#9e9d9e;}</style>
+	</defs>
+	<title>Untitled-1</title>
+	<polyline class="cls-1" points="217.5 211.5 217.5 217.5 211.5 217.5"/>
+	<line class="cls-2" x1="199.5" y1="217.5" x2="13.5" y2="217.5"/>
+	<polyline class="cls-1" points="7.5 217.5 1.5 217.5 1.5 211.5"/>
+	<line class="cls-2" x1="1.5" y1="199.5" x2="1.5" y2="13.5"/>
+	<polyline class="cls-1" points="1.5 7.5 1.5 1.5 7.5 1.5"/>
+	<line class="cls-2" x1="19.5" y1="1.5" x2="205.5" y2="1.5"/>
+	<polyline class="cls-1" points="211.5 1.5 217.5 1.5 217.5 7.5"/>
+	<line class="cls-2" x1="217.5" y1="19.5" x2="217.5" y2="205.5"/>
+	<text class="cls-3" transform="translate(72.35 145.67)">Upload Image</text>
+	<polygon class="cls-4" points="109.5 79.09 86.26 99.22 132.74 99.22 109.5 79.09"/>
+	<rect class="cls-4" x="94.58" y="96.74" width="29.85" height="19.61"/>
+	<rect class="cls-4" x="82.89" y="69.09" width="53.22" height="6.19"/>
+</svg>

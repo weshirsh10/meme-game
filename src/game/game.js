@@ -11,6 +11,8 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import UploadComponent from './judge/upload'
 import WaitUploadComponent from './player/waitUpload'
+import CaptionComponent from './player/caption'
+import JudgeWaitingComponent from './judge/judgeWait'
 import FirebaseService from '../services/firebase'
 
 const firebase = require('firebase')
@@ -26,6 +28,9 @@ class GameComponent extends React.Component {
             name: '',
             players: {},
             judge: '',
+            user: '',
+            judgeImg: '',
+            gameState: '',
             turn: 1
             }
     }
@@ -41,22 +46,33 @@ class GameComponent extends React.Component {
         .collection('rooms')
         .doc(this.state.room)
         .onSnapshot( async res => {
+            console.log("DATA", res.data())
             let _players = res.data().players
             let _host = res.data().host
             let _turn = res.data().turn
+            let _gameState = res.data().state
             let _judge = ''
+            let _user = ''
+            let _judgeImg = ''
 
             for(var player in _players){
-                if(_players[player].turn == 1){
+                if(_players[player].turn == this.state.turn){
+                    console.log("IN IF")
+                    _user = player
                     _judge = _players[player].name
-                    console.log(_players[player])
+                    _judgeImg = _players[player].imgPath
+                    break
                 }
             }
             await this.setState( {
                 players: _players,
                 host: _host,
-                judge: _judge
+                judge: _judge,
+                user: _user,
+                judgeImg: _judgeImg,
+                gameState: _gameState
             } )
+
 
         })   
         
@@ -77,15 +93,32 @@ class GameComponent extends React.Component {
             <main className={classes.main}>
                 <Paper className={classes.paper}>
                     {
-                        
-                        this.state.name == this.state.judge ?
-                        <UploadComponent></UploadComponent> :
-                        <WaitUploadComponent></WaitUploadComponent>
+                        this.stateManager()
                     }
-
                 </Paper>
             </main>
         )
+    }
+
+    stateManager = () => {
+        console.log("STATE", this.state)
+        if(this.state.name == this.state.judge){
+            switch(this.state.gameState){
+                case 'UPLOAD':
+                   return <UploadComponent room={this.state.room} user={this.state.user}></UploadComponent>
+                case 'CAPTION':
+                    return <JudgeWaitingComponent user={this.state.user} players={this.state.players}></JudgeWaitingComponent>
+
+            }
+        }
+        else{
+            switch(this.state.gameState){
+                case 'UPLOAD':
+                    return <WaitUploadComponent></WaitUploadComponent>
+                case 'CAPTION':
+                    return <CaptionComponent room={this.state.room} filepath={this.state.judgeImg}></CaptionComponent>
+            }
+        }
     }
 }
 

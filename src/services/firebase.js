@@ -1,4 +1,4 @@
-import { firestore } from 'firebase';
+import { firestore, storage } from 'firebase';
 
 const firebase = require('firebase')
 
@@ -25,7 +25,10 @@ class FirebaseService {
         playerObj[user] = {
             name:hostName,
             turn: 1,
-            points: 0
+            points: 0,
+            imgPath: '',
+            caption: ''
+
         }
 
         let roomObj = {
@@ -68,7 +71,9 @@ class FirebaseService {
         let playerObj = {
             name: playerName,
             turn: Object.keys(players).length + 1,
-            points: 0
+            points: 0,
+            imgPath: '',
+            caption: ''
 
         }
 
@@ -135,6 +140,42 @@ class FirebaseService {
         .collection("rooms")
         .doc(room)
         .update({state: _state})
+    }
+
+
+    submitCaption = async (room, caption) => {
+        let user = await firebase.auth().currentUser;
+        console.log("USER2", user.uid)
+        firebase
+        .firestore()
+        .collection('rooms')
+        .doc(room)
+        .update({["players." + user.uid + ".caption"]: caption})
+    }
+
+    //Firebase Storage Functions
+
+    uploadFile = (file, room, name) => {
+        let path = room + "/" + name + "/round1"
+        var storageRef = firebase.storage().ref(path)
+        storageRef.put(file).then( (snapshot) => {
+            //update image file path
+            firebase
+            .firestore()
+            .collection('rooms')
+            .doc(room)
+            .update({
+                state: "CAPTION",
+                ["players." + name +".imgPath"]: path
+            })
+        } )
+    }
+
+    downloadFile = (filepath) => {
+        var storageRef = firebase.storage().ref(filepath)
+        return storageRef.getDownloadURL()
+            
+
     }
 }
 
