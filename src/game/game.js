@@ -13,6 +13,8 @@ import UploadComponent from './judge/upload'
 import WaitUploadComponent from './player/waitUpload'
 import CaptionComponent from './player/caption'
 import JudgeWaitingComponent from './judge/judgeWait'
+import VotingComponent from './voting'
+import ScoringComponent from './scoring'
 import FirebaseService from '../services/firebase'
 
 const firebase = require('firebase')
@@ -23,6 +25,7 @@ class GameComponent extends React.Component {
     constructor() {
         super();
         this.state = {
+            votes: 0,
             host: '',
             room: '',
             name: '',
@@ -46,7 +49,6 @@ class GameComponent extends React.Component {
         .collection('rooms')
         .doc(this.state.room)
         .onSnapshot( async res => {
-            console.log("DATA", res.data())
             let _players = res.data().players
             let _host = res.data().host
             let _turn = res.data().turn
@@ -56,8 +58,7 @@ class GameComponent extends React.Component {
             let _judgeImg = ''
 
             for(var player in _players){
-                if(_players[player].turn == this.state.turn){
-                    console.log("IN IF")
+                if(_players[player].turn == _turn){
                     _user = player
                     _judge = _players[player].name
                     _judgeImg = _players[player].imgPath
@@ -65,6 +66,7 @@ class GameComponent extends React.Component {
                 }
             }
             await this.setState( {
+                turn: _turn,
                 players: _players,
                 host: _host,
                 judge: _judge,
@@ -81,14 +83,7 @@ class GameComponent extends React.Component {
 
     render() {
         const { classes } = this.props;
-
-        // for(var player in this.state.players){
-        //     console.log("player", player)
-        //     if(this.state.players.player.turn == 1){
-        //         this.setState({judge: this.state.players.player.name})
-        //     }
-        // }
-
+        console.log("GameState", this.state)
         return(
             <main className={classes.main}>
                 <Paper className={classes.paper}>
@@ -101,13 +96,28 @@ class GameComponent extends React.Component {
     }
 
     stateManager = () => {
-        console.log("STATE", this.state)
         if(this.state.name == this.state.judge){
             switch(this.state.gameState){
                 case 'UPLOAD':
                    return <UploadComponent room={this.state.room} user={this.state.user}></UploadComponent>
                 case 'CAPTION':
+                    let captionCount = 0
+                    for(var _player in this.state.players){
+                        if(this.state.players[_player].caption){
+                            captionCount ++
+                        }
+                    }
+                    if(captionCount == Object.keys(this.state.players).length -1){
+                        fbService.updateRoomState(this.state.room, "VOTING")
+                    }
+
                     return <JudgeWaitingComponent user={this.state.user} players={this.state.players}></JudgeWaitingComponent>
+
+                case 'VOTING':
+                    return <VotingComponent room={this.state.room} user={this.state.user} players={this.state.players} judge={true} filepath={this.state.judgeImg}></VotingComponent>
+                
+                case 'SCORING':
+                    return <ScoringComponent judge={true} room={this.state.room} players={this.state.players}></ScoringComponent>
 
             }
         }
@@ -116,7 +126,12 @@ class GameComponent extends React.Component {
                 case 'UPLOAD':
                     return <WaitUploadComponent></WaitUploadComponent>
                 case 'CAPTION':
-                    return <CaptionComponent room={this.state.room} filepath={this.state.judgeImg}></CaptionComponent>
+                    return <CaptionComponent players={this.state.players} room={this.state.room} filepath={this.state.judgeImg}></CaptionComponent>
+                case 'VOTING':
+                    return <VotingComponent room={this.state.room} turn={this.state.turn} user={this.state.user} players={this.state.players} judge={false} filepath={this.state.judgeImg}></VotingComponent>
+                case 'SCORING':
+                    return <ScoringComponent judge={false} room={this.state.room} players={this.state.players}></ScoringComponent>
+
             }
         }
     }

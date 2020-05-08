@@ -48,6 +48,17 @@ const styles = theme => ({
     errorText: {
       color: 'red',
       textAlign: 'center'
+    },
+    downloadImg: {
+      width: "200px",
+      height: "200px",
+      borderStyle: 'solid',
+      borderColor: 'blue'
+    },
+    imgScale: {
+      maxWidth: "100%",
+      maxHeight: "100%"
+
     }
   });
   

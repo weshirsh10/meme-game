@@ -23,7 +23,8 @@ class CaptionComponent extends React.Component {
         super();
         this.state = {
             caption: '',
-            imgUrl: ''
+            imgUrl: '',
+            submitted: false
 
         }
     }
@@ -46,15 +47,31 @@ class CaptionComponent extends React.Component {
                 <div id='imgContainer' className={classes.downloadImg}>
                     <img className={classes.imgScale} src={this.state.imgUrl}/>
                 </div>  
-                <FormControl required fullWidth margin='normal'>
+                {
+                    this.submitState()
+                }
+
+            </div>
+        )
+    }
+
+    submitState = () => {
+        if(this.state.submitted){
+            return (<div>
+                Waiting for Other players
+            </div>)
+        }
+        else{
+            return(<div>
+                    <FormControl required fullWidth margin='normal'>
                         <InputLabel htmlFor='caption-input'>Enter Caption</InputLabel>
                         <Input autoComplete='Caption' onChange={(e) => this.userTyping(e)} autoFocus id='caption-input'></Input>
                 </FormControl>
                     <Box display="flex" justifyContent="center" alignItems="center">
-                        <Button type='submit' onClick={(e) => this.onClickSubmit(e)} variant='contained' color='primary' className={classes.submit}>Submit</Button>
+                        <Button type='submit' onClick={(e) => this.onClickSubmit(e)} variant='contained' color='primary' className={this.props.submit}>Submit</Button>
                     </Box>
-            </div>
-        )
+            </div>)
+        }
     }
 
     userTyping = (e) => {
@@ -64,6 +81,7 @@ class CaptionComponent extends React.Component {
     onClickSubmit = (e) => {
         e.preventDefault();
         if(this.state.caption){
+            this.setState({submitted: true})
             fbService.submitCaption(this.props.room, this.state.caption)
         }
     }

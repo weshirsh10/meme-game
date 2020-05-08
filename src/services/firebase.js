@@ -32,8 +32,10 @@ class FirebaseService {
         }
 
         let roomObj = {
+            turn: 1,
             state: "lobby",
             roomCode: code,
+            votes: 0,
             host: hostName,
             players: playerObj
         }
@@ -104,6 +106,10 @@ class FirebaseService {
         })
     }
 
+    getCurrentUser = () => {
+        return firebase.auth().currentUser.uid
+    }
+
     createUser = async (name, roomCode) => {
 
         let userObj = {
@@ -145,12 +151,76 @@ class FirebaseService {
 
     submitCaption = async (room, caption) => {
         let user = await firebase.auth().currentUser;
-        console.log("USER2", user.uid)
         firebase
         .firestore()
         .collection('rooms')
         .doc(room)
         .update({["players." + user.uid + ".caption"]: caption})
+    }
+
+    submitVote = async (room, player, judge) => {
+        let vote = 10
+        if(judge){
+            vote = 100
+        }
+        firebase
+        .firestore()
+        .collection('rooms')
+        .doc(room)
+        .get().then( resp => {
+            let votes = resp.data().votes
+            let points = resp.data().players[player]["points"]
+            let playerNum = Object.keys(resp.data().players).length
+            let gameState = resp.data().state
+            console.log("points", points)
+            points = points + vote
+            votes = votes + 1
+
+            if(playerNum == votes) {
+                gameState = "SCORING"
+            }
+
+            firebase
+            .firestore()
+            .collection('rooms')
+            .doc(room)
+            .update({votes: votes, state: gameState, ["players." + player + ".points"]: points})
+        })
+
+    }
+
+    clearState = async (newState, room) => {
+        firebase
+        .firestore()
+        .collection('rooms')
+        .doc(room)
+        .get().then( resp => {
+            let players = resp.data().players
+            let turn = resp.data().turn + 1
+
+            if(turn > Object.keys(players).length){
+                turn = 1    
+            }
+
+            let updateObj = {
+                turn: turn,
+                state: newState,
+                votes: 0
+            }
+
+            for(var player in players){
+                updateObj["players." + player + ".caption"] = ''
+                updateObj["players." + player + ".imgPath"] = ''
+
+            }
+
+            firebase
+            .firestore()
+            .collection('rooms')
+            .doc(room)
+            .update(updateObj)
+
+        })
     }
 
     //Firebase Storage Functions
