@@ -18,9 +18,7 @@ import CaptionComponent from './player/caption'
 import JudgeWaitingComponent from './judge/judgeWait'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-
-
-
+import { ThemeProvider } from '@material-ui/core/styles'
 
 import FirebaseService from '../services/firebase'
 import { ListItem } from '@material-ui/core';
@@ -39,8 +37,9 @@ class ScoringComponent extends React.Component {
     render(){
         const { classes } = this.props;
         return (
-            <div>
-            <Typography component='h1'variant='h5'>Scores</Typography>
+            <ThemeProvider theme={this.props.theme}>
+            <div className={classes.startDiv}>
+            <Typography component='h1' variant='h2'>Scores</Typography>
             <List>
                 {
                       Object.entries(this.props.players).map( (_player) => {
@@ -55,10 +54,12 @@ class ScoringComponent extends React.Component {
             </List>
             {
                 this.props.judge ?
-                <Button type="contained" onClick={e => this.onClickContinue(e)}>Continue</Button> :
-                <Typography component='h2'>Waiting for host</Typography>
+                <Button className={classes.submit} type="contained" onClick={e => this.onClickContinue(e)}>Continue</Button> :
+                <Typography align='center' component='h2' color='secondary'>Waiting for judge to continue.</Typography>
             }
             </div>
+            </ThemeProvider>
+
         )
 
     }

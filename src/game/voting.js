@@ -14,8 +14,12 @@ import UploadComponent from './judge/upload'
 import WaitUploadComponent from './player/waitUpload'
 import CaptionComponent from './player/caption'
 import JudgeWaitingComponent from './judge/judgeWait'
+import Lightbox from 'react-image-lightbox';
+import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import { ThemeProvider } from '@material-ui/core/styles'
+
 
 
 
@@ -31,7 +35,8 @@ class VotingComponent extends React.Component {
             ingUrl: '',
             voted: false,
             captions: [],
-            captionIndex: 0
+            captionIndex: 0,
+            isOpen: false
 
         }
     }
@@ -46,6 +51,7 @@ class VotingComponent extends React.Component {
         )
 
         let captionArray = []
+        let voted = false
         for(var player in this.props.players){
             console.log("Player", player)
             console.log("user", fbService.getCurrentUser())
@@ -53,38 +59,65 @@ class VotingComponent extends React.Component {
 
                 captionArray.push({player: player, caption: this.props.players[player].caption})
             }
+            
+            voted = this.props.players[fbService.getCurrentUser()].voted
+            console.log("VOTE",voted)
         }
 
         await this.setState( () => {
-            return {captions: captionArray}
+            return {voted: voted, captions: captionArray}
         })
 
     }
 
     render() {
         const { classes } = this.props;
+        console.log("VOTE STATE", this.state)
         return(
-            <div>
-                <Typography component='h1'variant='h5'>Vote</Typography>
+            <ThemeProvider theme={this.props.theme}>
+            <div className={classes.main}>
+            <Typography component='h1' variant='h2'>Vote</Typography>
+
                 <div id='imgContainer' className={classes.downloadImg}>
                     <img className={classes.imgScale} src={this.state.imgUrl}/>
                 </div>
-                <div display="flex" flexdirection="row">
+                <IconButton onClick={() => this.setState({ isOpen: true })}>
+                    <FullscreenIcon color='secondary'/>
+                </IconButton>
+                <div className={classes.captionDisplay}>
                     <IconButton aria-label="previous" onClick={(e) => this.onClickPrev(e)}>
-                        <ChevronLeftIcon/>
+                        <ChevronLeftIcon color='secondary'/>
                     </IconButton >
                     {
-                     <Typography component='h2'>{
+                     <Typography component='h2' variant='h4'>{
                         this.state.captions[this.state.captionIndex] ? this.state.captions[this.state.captionIndex].caption: ''
                         }
                         </Typography>
                     }
                     <IconButton aria-label="next" onClick={(e) => this.onClickNext(e)}>
-                        <ChevronRightIcon/>
+                        <ChevronRightIcon color='secondary'/>
                     </IconButton>
                 </div>
-                <Button disabled={this.state.voted} type="submit" variant="contained" onClick = {(e) => this.onCLickVote(e)}>Vote</Button>
+                <Button color='secondary' disabled={this.state.voted} type="submit" variant="contained" onClick = {(e) => this.onCLickVote(e)}>Vote</Button>
+                {
+                    <Typography> 
+                        {
+                            this.state.voted ? "Waiting for others to vote" : null
+                        }
+                    </Typography>
+                }
+                <div className={classes.points}>
+                    <Typography component='h2' variant='h5' color='secondary' >Judge Vote = 100pts</Typography>
+                    <Typography component='h2' variant='h5' color='secondary'>Player Vote = 10pts</Typography>
+                </div>
+        {this.state.isOpen && (
+          <Lightbox
+            mainSrc={this.state.imgUrl}
+            onCloseRequest={() => this.setState({ isOpen: false })}
+          />
+        )}
             </div>
+            </ThemeProvider>
         )
     }
 
@@ -117,7 +150,7 @@ class VotingComponent extends React.Component {
     onCLickVote = (e) => {
         e.preventDefault();
         this.setState({voted: true})
-        fbService.submitVote(this.props.room, this.state.captions[this.state.captionIndex].player, this.props.judge)
+        fbService.submitVote(this.props.room, this.state.captions[this.state.captionIndex].player, this.props.judge, fbService.getCurrentUser())
         
     }
 

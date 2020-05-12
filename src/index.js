@@ -4,9 +4,10 @@ import './index.css';
 import * as serviceWorker from './serviceWorker';
 import { Route, BrowserRouter as Router } from 'react-router-dom';
 import LoginComponent from './login/login';
-import LobbyComponent from './lobby/lobby'
 import GameComponent from './game/game'
 import FirebaseService from './services/firebase'
+import 'react-image-lightbox/style.css'; // This only needs to be imported once in your app
+
 
 
 //initialize FB connection
@@ -17,7 +18,6 @@ const routing = (
   <Router>
     <div id='routing-container'>
       <Route path="/login" component={ LoginComponent }></Route>
-      <Route path="/lobby/:room/:name" component={ LobbyComponent }></Route>
       <Route path="/game/:room/:name" component={ GameComponent }></Route>
     </div>
   </Router>

@@ -18,7 +18,8 @@ class FirebaseService {
     }
 
     createRoom = async (hostName) => {
-        let code = Math.random().toString(36).slice(2).substr(0,4)
+        let code = Math.random().toString(36).slice(2).substr(0,4).toUpperCase()
+        
         let user = await this.createUser(hostName, code)
 
         let playerObj = {}
@@ -27,13 +28,14 @@ class FirebaseService {
             turn: 1,
             points: 0,
             imgPath: '',
-            caption: ''
+            caption: '',
+            voted: false
 
         }
 
         let roomObj = {
             turn: 1,
-            state: "lobby",
+            state: "LOBBY",
             roomCode: code,
             votes: 0,
             host: hostName,
@@ -61,13 +63,14 @@ class FirebaseService {
 
     joinRoom = async (playerName, roomCode) => {
         console.log("IN JOIN ROOM")
-
+        roomCode =roomCode.toUpperCase()
 
         let user = await this.createUser(playerName, roomCode)
         let players = await this.getPlayers(roomCode)
         //TODO
         //ADD Firebase user ID to player obj
         //Check to see if 8 players in room
+        //check user names for duplicates
 
 
         let playerObj = {
@@ -75,7 +78,8 @@ class FirebaseService {
             turn: Object.keys(players).length + 1,
             points: 0,
             imgPath: '',
-            caption: ''
+            caption: '',
+            voted: false
 
         }
 
@@ -95,6 +99,8 @@ class FirebaseService {
         .collection("rooms")
         .doc(roomCode)
         .get()
+
+        return room
 
         
     }
@@ -158,7 +164,7 @@ class FirebaseService {
         .update({["players." + user.uid + ".caption"]: caption})
     }
 
-    submitVote = async (room, player, judge) => {
+    submitVote = async (room, player, judge, voter) => {
         let vote = 10
         if(judge){
             vote = 100
@@ -172,7 +178,6 @@ class FirebaseService {
             let points = resp.data().players[player]["points"]
             let playerNum = Object.keys(resp.data().players).length
             let gameState = resp.data().state
-            console.log("points", points)
             points = points + vote
             votes = votes + 1
 
@@ -184,7 +189,7 @@ class FirebaseService {
             .firestore()
             .collection('rooms')
             .doc(room)
-            .update({votes: votes, state: gameState, ["players." + player + ".points"]: points})
+            .update({votes: votes, state: gameState, ["players." + player + ".points"]: points, ["players." + voter + ".voted"]: true })
         })
 
     }
@@ -211,6 +216,8 @@ class FirebaseService {
             for(var player in players){
                 updateObj["players." + player + ".caption"] = ''
                 updateObj["players." + player + ".imgPath"] = ''
+                updateObj["players." + player + ".voted"] = false
+
 
             }
 

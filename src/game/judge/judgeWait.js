@@ -14,7 +14,10 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 import uploadArrow from '../../assets/svg/uploadArrow.svg'
+import { ThemeProvider } from '@material-ui/styles';
+
 
 import FirebaseService from '../../services/firebase'
 
@@ -30,31 +33,29 @@ class JudgeWaitingComponent extends React.Component {
     }
 
     render() {
+        const { classes } = this.props;
         return(
-            <div>
-            <Typography component='h1'variant='h5'>Players Submitting Captions</Typography>
-            <List>
+            <ThemeProvider theme={this.props.theme}>
+            <div className={classes.uploadArea}>
+            <Typography align='center' component='h1' variant='h2'>Players Submitting Captions</Typography>
                 {
                       Object.entries(this.props.players).map( (_player) => {
-                        console.log("Here?", _player[1].caption)
-
                         if(this.props.user != _player[0]){
-                            console.log("what?", _player[1].caption)
                             return(
-                                <ListItem display="flex" flexdirection="row">
-                                    <ListItemText>{_player[1].name}</ListItemText>
-                                    { 
-                                        _player[1].caption ? <CheckCircleOutlineIcon/>:
-                                        <MoreHorizIcon/>
-                                    } 
-                                </ListItem>
+                                <div className={classes.waitListItem}>
+                                    <Typography component='h2' variant='h4' className={classes.waitPlayerName}>{_player[1].name}</Typography>
+                                    {
+                                        _player[1].caption ? <CheckCircleOutlineIcon  color='secondary'/>:
+                                        <MoreHorizIcon color='primary'/>
+                                    }
+                                </div>
                             )
                         }
                         
                     })
                 }
-            </List>
             </div>
+            </ThemeProvider>
         )
     }
 }

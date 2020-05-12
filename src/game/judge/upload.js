@@ -11,6 +11,8 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import PublishIcon from '@material-ui/icons/Publish';
 import uploadArrow from '../../assets/svg/uploadArrow.svg'
+import { ThemeProvider } from '@material-ui/core/styles'
+
 
 import FirebaseService from '../../services/firebase'
 
@@ -31,19 +33,24 @@ class UploadComponent extends React.Component {
     render() {
         const { classes } = this.props;
         return(
-            <div className={classes.uploadArea}>
-                <label htmlFor="uploadButton">
-                    <div className={classes.uploadImg}>
-                    {
-                        this.state.imagePreview ? <img className={classes.imgScale} src={this.state.imagePreview}/>:
-                        <img className={classes.imgScale} src={uploadArrow}/>
-                    }
-                    </div>
-                </label>
-                <input type='file' id="uploadButton" style={{display: 'none'}} onChange={this.handleFileChange} accept="image/*"/>
-                <Button onClick={this.handleFileUpload}>Select</Button>
-
+            <ThemeProvider theme={this.props.theme}>
+            <div className={classes.main}>
+            <Typography component='h1' variant='h2'>Upload</Typography>
+                <div className={classes.uploadArea}>
+                    <label htmlFor="uploadButton">
+                        <div className={classes.uploadImg}>
+                        {
+                            this.state.imagePreview ? <img className={classes.imgScale} src={this.state.imagePreview}/>:
+                            <img className={classes.imgScale} src={uploadArrow}/>
+                        }
+                        </div>
+                    </label>
+                    <input type='file' id="uploadButton" style={{display: 'none'}} onChange={this.handleFileChange} accept="image/*"/>
+                    <Button  color='primary' className={classes.submit} onClick={this.handleFileUpload}>Select</Button>
+                </div>
             </div>
+            </ThemeProvider>
+
         )
     }
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from "prop-types";
 import styles from './styles';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -6,10 +7,12 @@ import Input from '@material-ui/core/Input';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import withStyles from '@material-ui/core/styles/withStyles';
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import FirebaseService from '../services/firebase'
+import logo from '../assets/svg/logo.svg'
 
 const firebase = new FirebaseService();
 
@@ -26,13 +29,6 @@ class LoginComponent extends React.Component {
         }
     }
 
-    // checkLoginStatus() {
-    //     firebase.getCurrentUser().then( e => {
-    //         console.log("Plz", e)
-    //     })
-    //     console.log("currUser", firebase.getCurrentUser())
-    // }
-
     componentDidMount() {
         console.log("mounted")
         let user = {}
@@ -44,11 +40,13 @@ class LoginComponent extends React.Component {
                     firebase.getUser(user.uid)
                     .then( e => {
                         let data = e.data()
+                        console.log(data)
 
                         firebase.roomIsValid(data.room).then( room => {
+                            console.log(room)
                             if(room) {
                                 console.log("ROOM EXISTED", room.data())
-                                this.props.history.push('/lobby/' + data.room + '/' + data.name )
+                                this.props.history.push('/game/' + data.room + '/' + data.name )
                             }
 
 
@@ -69,20 +67,19 @@ class LoginComponent extends React.Component {
         const { classes } = this.props;
 
         return(
-            <main className={classes.main}>
+            <div className={classes.main}>
                 <CssBaseline></CssBaseline>
-                <Paper className={classes.paper}>
-                    <Typography component='h1' variant='h5'>
-                        Welcome!
-                    </Typography>
-                    <form onSubmit={(e) => this.onSubmitLogin(e)} className={classes.form}>
-                        <FormControl required fullWidth margin='normal'>
-                            <InputLabel htmlFor='login-name-input'>Enter Your Name</InputLabel>
-                            <Input autoComplete='Name' onChange={(e) => this.userTyping('name', e)} autoFocus id='login-name-input'></Input>
+                <div className={classes.pageContainer}> 
+                <div className={classes.paper}>
+                    <img src={logo}/>
+                    <form onSubmit={(e) => this.onSubmitLogin(e)} className={classes.form} >
+                        <FormControl className={classes.formRoot} required fullWidth margin='normal'>
+                            <InputLabel color='white' className={classes.inputLabel} htmlFor='login-name-input'>Enter Your Name</InputLabel>
+                            <Input color='white' autoComplete='Name' onChange={(e) => this.userTyping('name', e)} autoFocus id='login-name-input'></Input>
                         </FormControl>
                         <Box display="flex" justifyContent="center" alignItems="center">
-                            <Button type='submit' onClick={(e) => this.onClickHost(e)} variant='contained' color='primary' className={classes.submit}>Host Game</Button>
-                            <Button type='submit' id="join" variant='contained' color='primary' className={classes.submit}>Join Room</Button>
+                            <Button type='submit' onClick={(e) => this.onClickHost(e)} variant='contained' className={classes.submit}>Host Game</Button>
+                            <Button type='submit' id="join" variant='contained' className={classes.submit}>Join Room</Button>
                         </Box>
                     </form>
                     {
@@ -95,12 +92,12 @@ class LoginComponent extends React.Component {
                     {
                         this.state.joinRoom ?  
                         <form onSubmit={(e) => this.onSubmitRoomCode(e)} className={classes.form}>
-                        <FormControl required fullWidth margin='normal'>
-                            <InputLabel htmlFor='room-code-input'>Enter Room Code</InputLabel>
+                        <FormControl className={classes.formRoot} required fullWidth margin='normal'>
+                            <InputLabel className={classes.inputLabel} htmlFor='room-code-input'>Enter Room Code</InputLabel>
                             <Input autoComplete='Room Code' onChange={(e) => this.userTyping('roomCode', e)} autoFocus id='room-code-input'></Input>
                         </FormControl>
                         <Box display="flex" justifyContent="center" alignItems="center">
-                            <Button type='submit' onClick={(e) => this.onClickJoin(e)} variant='contained' color='primary' className={classes.submit}>Enter</Button>
+                            <Button type='submit' onClick={(e) => this.onClickJoin(e)} variant='contained' className={classes.submit}>Enter</Button>
                         </Box>
                     </form>
                     :null
@@ -112,8 +109,9 @@ class LoginComponent extends React.Component {
                         </Typography>
                         : null                        
                     }
-                </Paper>
-            </main>
+                </div>
+                </div>
+            </div>
         );
     }
 
@@ -147,7 +145,7 @@ class LoginComponent extends React.Component {
             firebase.createRoom(this.state.name)
             .then( (resp) => {
                 console.log("Check Firebase")
-                this.props.history.push('/lobby/' + resp[1]+ "/" + this.state.name)
+                this.props.history.push('/game/' + resp[1]+ "/" + this.state.name)
             }, dbError =>{
                 console.log("DBerror", dbError)
             }
@@ -162,7 +160,7 @@ class LoginComponent extends React.Component {
 
         firebase.joinRoom(this.state.name, this.state.roomCode)
         .then( () => {
-            this.props.history.push('/lobby/' + this.state.roomCode + "/" + this.state.name)
+            this.props.history.push('/game/' + this.state.roomCode + "/" + this.state.name)
         },dbError => {
             console.log(dbError)
             firebase.deleteUser()
