@@ -43,6 +43,7 @@ const theme = createMuiTheme({
             fontFamily: ['Squada One']
         },
         button: {
+            fontSize: 20,
             fontFamily: ['Squada One']
         }
     }

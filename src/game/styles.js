@@ -148,7 +148,10 @@ const styles = theme => ({
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      width: '50%'
+      width: '400px',
+      [theme.breakpoints.down('sm')]: {
+        width: "90%",
+      },
     }
   });
   

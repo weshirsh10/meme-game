@@ -32,7 +32,8 @@ class LobbyComponent extends React.Component {
             players: {},
             host: '',
             room: '',
-            name: ''
+            name: '',
+            errorText: ''
         }
     }
 
@@ -65,7 +66,8 @@ class LobbyComponent extends React.Component {
                     this.props.host ?
                         <div className={classes.startDiv}>
                             <Button onClick={(e) => this.onClickStart(e)} type='submit' color='primary' className={classes.submit}>Start</Button>
-                            <Typography color='secondary' align='center' component='h4'>*You are the host.<br/>Press start when all players have joined.</Typography>
+                            <Typography color='error' align='center' component='h4'>{this.state.errorText}</Typography>
+                            <Typography color='secondary' align='center' component='h4'>*You are the host.<br/>Send the room code to players so they can join. Press start when all players have joined.</Typography>
                         </div>
                         :
                         <Typography align='center' color='secondary' component='h2' >{this.props.hostName} is the host.</Typography>
@@ -77,8 +79,12 @@ class LobbyComponent extends React.Component {
 
     onClickStart = (e) => {
         //make sure theres more than 2 people in room
-        fbService.updateRoomState(this.props.room, "UPLOAD")
-        // this.props.history.push('/game/' + this.state.room + '/' + this.state.name)
+        if(Object.keys(this.props.players).length > 2){
+            fbService.updateRoomState(this.props.room, "UPLOAD")
+        }
+        else{
+            this.setState({errorText: "At least 3 players are needed to start."})
+        }
     }
 
 }

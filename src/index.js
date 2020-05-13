@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-import { Route, BrowserRouter as Router } from 'react-router-dom';
+import { Redirect, Route, BrowserRouter as Router } from 'react-router-dom';
 import LoginComponent from './login/login';
 import GameComponent from './game/game'
 import FirebaseService from './services/firebase'
@@ -17,6 +17,7 @@ import 'react-image-lightbox/style.css'; // This only needs to be imported once 
 const routing = (
   <Router>
     <div id='routing-container'>
+      <Route exact path='/' render={()=> <Redirect to="/login"/>}></Route>
       <Route path="/login" component={ LoginComponent }></Route>
       <Route path="/game/:room/:name" component={ GameComponent }></Route>
     </div>

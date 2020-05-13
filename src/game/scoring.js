@@ -11,13 +11,12 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import UploadComponent from './judge/upload'
-import WaitUploadComponent from './player/waitUpload'
-import CaptionComponent from './player/caption'
-import JudgeWaitingComponent from './judge/judgeWait'
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 import { ThemeProvider } from '@material-ui/core/styles'
 
 import FirebaseService from '../services/firebase'
@@ -30,7 +29,7 @@ class ScoringComponent extends React.Component {
     constructor(){
         super()
         this.state = {
-
+            scoretable:[]
         }
     }
 
@@ -40,22 +39,12 @@ class ScoringComponent extends React.Component {
             <ThemeProvider theme={this.props.theme}>
             <div className={classes.startDiv}>
             <Typography component='h1' variant='h2'>Scores</Typography>
-            <List>
-                {
-                      Object.entries(this.props.players).map( (_player) => {
-                        return(
-                            <ListItem display="flex" flexdirection="row">
-                                <ListItemText>{_player[1].name}</ListItemText>
-                                <ListItemText>{_player[1].points}</ListItemText>
-                            </ListItem>
-                        )
-                    })
-                }
-            </List>
+            { this.renderScoreCard(this.props.players)}
+
             {
                 this.props.judge ?
                 <Button className={classes.submit} type="contained" onClick={e => this.onClickContinue(e)}>Continue</Button> :
-                <Typography align='center' component='h2' color='secondary'>Waiting for judge to continue.</Typography>
+                <Typography style={{margin: '20px'}} align='center' component='h2' color='secondary'>Waiting for judge to continue.</Typography>
             }
             </div>
             </ThemeProvider>
@@ -67,6 +56,60 @@ class ScoringComponent extends React.Component {
     onClickContinue = () => {
         fbService.clearState("UPLOAD", this.props.room)
     }
+
+    renderScoreCard = (players) => {
+        let scoreArray = []
+        let placed = false
+        for(var player in players){
+            let i = 0
+            while(!placed){
+                if(scoreArray[i]){
+                    if(players[player].points < scoreArray[i].points){
+                        i += 1
+                    }
+                    else{
+                        scoreArray.splice(i, 0, players[player])
+                        placed=true
+                    }
+                }
+                else{
+                    scoreArray.push(players[player])
+                    placed = true
+                }
+            }
+            placed = false    
+        }
+        return(
+            <TableContainer>
+                <Table >
+                    <TableHead >
+                        <TableRow color='secondary'>
+                            <TableCell style={{fontSize: 20, color: '#57C5C9'}} >Player</TableCell>
+                            <TableCell style={{ fontSize: 20, color: '#57C5C9'}} >Score</TableCell>
+                            <TableCell style={{fontSize: 20, color: '#57C5C9'}} >Caption</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {
+                            scoreArray.map((player) => {
+                                return(
+                                <TableRow>
+                                    <TableCell style={{color: 'white'}}>{player.name}</TableCell>
+                                    <TableCell style={{color: 'white'}}> {player.points}</TableCell>
+                                    <TableCell style={{color: 'white'}}>{player.caption}</TableCell>
+                                </TableRow>
+                                )
+                            })
+                        }
+                    </TableBody>
+
+                </Table>
+            </TableContainer>
+        )
+    }
+
+
+
 }
 
 export default withStyles(styles)(ScoringComponent);

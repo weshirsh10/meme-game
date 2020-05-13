@@ -16,6 +16,33 @@ import logo from '../assets/svg/logo.svg'
 
 const firebase = new FirebaseService();
 
+const theme = createMuiTheme({
+    palette: {
+        primary: {
+            main: '#ffffff',
+            // dark: '#ffffff'
+        },
+        secondary: {
+            main: '#57C5C9',
+        }
+    },
+    typography: {
+        h2: {
+            fontFamily: ['Squada One']
+        },
+        h4: {
+            fontSize: 20
+        },
+        h5: {
+            fontFamily: ['Squada One']
+        },
+        button: {
+            fontSize: 20,
+            fontFamily: ['Squada One']
+        }
+    }
+})
+
 class LoginComponent extends React.Component {
 
     constructor() {
@@ -43,8 +70,8 @@ class LoginComponent extends React.Component {
                         console.log(data)
 
                         firebase.roomIsValid(data.room).then( room => {
-                            console.log(room)
-                            if(room) {
+                            console.log("DID MOUNT ROOM", room)
+                            if(room.data()) {
                                 console.log("ROOM EXISTED", room.data())
                                 this.props.history.push('/game/' + data.room + '/' + data.name )
                             }
@@ -67,6 +94,7 @@ class LoginComponent extends React.Component {
         const { classes } = this.props;
 
         return(
+            <ThemeProvider theme={theme}>
             <div className={classes.main}>
                 <CssBaseline></CssBaseline>
                 <div className={classes.pageContainer}> 
@@ -97,7 +125,7 @@ class LoginComponent extends React.Component {
                             <Input autoComplete='Room Code' onChange={(e) => this.userTyping('roomCode', e)} autoFocus id='room-code-input'></Input>
                         </FormControl>
                         <Box display="flex" justifyContent="center" alignItems="center">
-                            <Button type='submit' onClick={(e) => this.onClickJoin(e)} variant='contained' className={classes.submit}>Enter</Button>
+                            <Button type='submit' onClick={(e) => this.onClickEnter(e)} variant='contained' className={classes.submit}>Enter</Button>
                         </Box>
                     </form>
                     :null
@@ -112,6 +140,7 @@ class LoginComponent extends React.Component {
                 </div>
                 </div>
             </div>
+            </ThemeProvider>
         );
     }
 
@@ -156,10 +185,10 @@ class LoginComponent extends React.Component {
     } 
 
     //Join As Player
-    onClickJoin = (e) => {
+    onClickEnter = (e) => {
 
         firebase.joinRoom(this.state.name, this.state.roomCode)
-        .then( () => {
+        .then( (resp) => {
             this.props.history.push('/game/' + this.state.roomCode + "/" + this.state.name)
         },dbError => {
             console.log(dbError)
