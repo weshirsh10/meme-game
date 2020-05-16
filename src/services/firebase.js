@@ -26,6 +26,7 @@ class FirebaseService {
         playerObj[user] = {
             name:hostName,
             turn: 1,
+            roundScore: 0,
             points: 0,
             imgPath: '',
             caption: '',
@@ -76,6 +77,7 @@ class FirebaseService {
         let playerObj = {
             name: playerName,
             turn: Object.keys(players).length + 1,
+            roundScore: 0,
             points: 0,
             imgPath: '',
             caption: '',
@@ -165,6 +167,11 @@ class FirebaseService {
     }
 
     submitVote = async (room, player, judge, voter) => {
+        console.log("Room", room)
+        console.log("player", player)
+        console.log("judge", player)
+        console.log("judge", voter)
+
         let vote = 10
         if(judge){
             vote = 100
@@ -178,18 +185,22 @@ class FirebaseService {
             let points = resp.data().players[player]["points"]
             let playerNum = Object.keys(resp.data().players).length
             let gameState = resp.data().state
+            let roundScore = resp.data().players[player]["roundScore"]
             points = points + vote
+            roundScore = roundScore + vote
             votes = votes + 1
 
             if(playerNum == votes) {
                 gameState = "SCORING"
             }
+            console.log("PLAYER - VOTING", vote)
+            console.log("RoundScore", roundScore)
 
             firebase
             .firestore()
             .collection('rooms')
             .doc(room)
-            .update({votes: votes, state: gameState, ["players." + player + ".points"]: points, ["players." + voter + ".voted"]: true })
+            .update({votes: votes, ["players." + player + ".roundScore"]: roundScore,["players." + player + ".points"]: points, ["players." + voter + ".voted"]: true })
         })
 
     }
@@ -217,8 +228,7 @@ class FirebaseService {
                 updateObj["players." + player + ".caption"] = ''
                 updateObj["players." + player + ".imgPath"] = ''
                 updateObj["players." + player + ".voted"] = false
-
-
+                updateObj["players." + player + ".roundScore"] = 0
             }
 
             firebase

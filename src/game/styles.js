@@ -152,6 +152,12 @@ const styles = theme => ({
       [theme.breakpoints.down('sm')]: {
         width: "90%",
       },
+    },
+    votesReceived: {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center"
     }
   });
   

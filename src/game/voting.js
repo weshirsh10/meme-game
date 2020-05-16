@@ -15,6 +15,7 @@ import WaitUploadComponent from './player/waitUpload'
 import CaptionComponent from './player/caption'
 import JudgeWaitingComponent from './judge/judgeWait'
 import Lightbox from 'react-image-lightbox';
+import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -102,10 +103,16 @@ class VotingComponent extends React.Component {
                 {
                     <Typography> 
                         {
-                            this.state.voted ? "Waiting for others to vote" : null
+                            this.state.voted ? "Votes Received" : null
                         }
                     </Typography>
                 }
+                <div className={classes.votesReceived}>
+                {
+                     this.renderVotes()
+                }
+                </div>
+
                 <div className={classes.points}>
                     <Typography component='h2' variant='h5' color='secondary' >Judge Vote = 100pts</Typography>
                     <Typography component='h2' variant='h5' color='secondary'>Player Vote = 10pts</Typography>
@@ -119,6 +126,23 @@ class VotingComponent extends React.Component {
             </div>
             </ThemeProvider>
         )
+    }
+
+    renderVotes = () => {
+        let votes = 0
+        return Object.entries(this.props.players).map((_player) => {
+            console.log("Voted", _player[1].voted)
+            if(_player[1].voted){
+                votes = votes + 1
+                if(votes == Object.keys(this.props.players).length){
+                    fbService.updateRoomState(this.props.room, "SCORING")
+                }
+                return (<CheckCircleOutlineIcon color='secondary'/>)
+            }
+            else{
+                return null
+            }
+        })
     }
 
     onClickNext = (e) => {

@@ -84,17 +84,20 @@ class ScoringComponent extends React.Component {
                 <Table >
                     <TableHead >
                         <TableRow color='secondary'>
-                            <TableCell style={{fontSize: 20, color: '#57C5C9'}} >Player</TableCell>
-                            <TableCell style={{ fontSize: 20, color: '#57C5C9'}} >Score</TableCell>
-                            <TableCell style={{fontSize: 20, color: '#57C5C9'}} >Caption</TableCell>
+                            <TableCell style={{fontSize: 15, color: '#57C5C9'}} >Player</TableCell>
+                            <TableCell style={{ fontSize: 15, color: '#57C5C9'}} >Round</TableCell>
+                            <TableCell style={{ fontSize: 15, color: '#57C5C9'}} >Total</TableCell>
+                            <TableCell style={{fontSize: 15, color: '#57C5C9'}} >Caption</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {
                             scoreArray.map((player) => {
+                                console.log("SCORING", player)
                                 return(
                                 <TableRow>
                                     <TableCell style={{color: 'white'}}>{player.name}</TableCell>
+                                    <TableCell style={{color: 'white'}}> {player.roundScore}</TableCell>
                                     <TableCell style={{color: 'white'}}> {player.points}</TableCell>
                                     <TableCell style={{color: 'white'}}>{player.caption}</TableCell>
                                 </TableRow>
