@@ -15,11 +15,12 @@ import Button from '@material-ui/core/Button';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import uploadArrow from '../../assets/svg/uploadArrow.svg'
+import uploadArrow from '../../../assets/svg/uploadArrow.svg'
+import TimerComponent from '../../timer'
 import { ThemeProvider } from '@material-ui/styles';
 
 
-import FirebaseService from '../../services/firebase'
+import FirebaseService from '../../../services/firebase'
 
 
 const fbService = new FirebaseService
@@ -38,7 +39,8 @@ class JudgeWaitingComponent extends React.Component {
             <ThemeProvider theme={this.props.theme}>
             <div className={classes.uploadArea}>
             <Typography align='center' component='h1' variant='h2'>Players Submitting Captions</Typography>
-                {
+            <TimerComponent theme={this.props.theme} startTime={this.props.timestamp} nextState="VOTING" room={this.props.room}/>
+            {
                       Object.entries(this.props.players).map( (_player) => {
                         if(this.props.user != _player[0]){
                             return(

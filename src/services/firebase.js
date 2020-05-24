@@ -1,5 +1,5 @@
 import { firestore, storage } from 'firebase';
-
+import {randCaptionArray} from './randCaptionArray'
 const firebase = require('firebase')
 
 class FirebaseService {
@@ -40,7 +40,8 @@ class FirebaseService {
             roomCode: code,
             votes: 0,
             host: hostName,
-            players: playerObj
+            players: playerObj,
+            playerCount: 1
         }
 
         return [firebase
@@ -52,37 +53,36 @@ class FirebaseService {
 
     }
 
-    getPlayers = async (roomCode) => {
-        let roomObj = 
-        firebase.firestore()
+    updatePlayerCount = async (roomCode) => {
+        let playerInc = firebase.firestore.FieldValue.increment(1)
+
+        let update = firebase.firestore()
         .collection("rooms")
         .doc(roomCode)
-        .get()
-        return Object.keys((await roomObj).data().players)
-
+        .update({
+            playerCount: playerInc,
+        })
+       
     }
 
     joinRoom = async (playerName, roomCode) => {
-        console.log("IN JOIN ROOM")
         roomCode =roomCode.toUpperCase()
 
         let user = await this.createUser(playerName, roomCode)
-        let players = await this.getPlayers(roomCode)
+        await this.updatePlayerCount(roomCode)
         //TODO
         //ADD Firebase user ID to player obj
         //Check to see if 8 players in room
         //check user names for duplicates
 
-
         let playerObj = {
             name: playerName,
-            turn: Object.keys(players).length + 1,
             roundScore: 0,
             points: 0,
             imgPath: '',
             caption: '',
-            voted: false
-
+            turn: '',
+            voted: false,
         }
 
         return firebase
@@ -90,7 +90,7 @@ class FirebaseService {
         .collection("rooms")
         .doc(roomCode)
         .update({
-            ["players." + user]: playerObj
+            ["players." + user]: playerObj,
         })
 
     }
@@ -150,10 +150,49 @@ class FirebaseService {
     }
 
     updateRoomState = (room, _state) => {
+        let updateObj = {timer: false, state: _state}
+
+        if(_state == 'VOTING'){
+            firebase
+            .firestore()
+            .collection('rooms')
+            .doc(room)
+            .get().then(resp => {
+                for(var player in resp.data().players){
+                    if(!resp.data().players[player].imgPath && !resp.data().players[player].caption){
+                        updateObj["players." + player + ".caption"] = randCaptionArray[Math.floor(Math.random() * randCaptionArray.length)]
+                    }
+                }
+
+                firebase.firestore()
+                .collection("rooms")
+                 .doc(room)
+                 .update(updateObj)
+
+            })
+        }
+        else{
         firebase.firestore()
         .collection("rooms")
         .doc(room)
-        .update({state: _state})
+        .update(updateObj)
+        }
+
+        
+    }
+
+    startGame = (room, players) => {
+        let turn = 1
+        for(var player in players){
+            firebase.firestore()
+            .collection('rooms')
+            .doc(room)
+            .update({["players." + player + ".turn"]: turn})
+            turn += 1
+        }
+
+        this.updateRoomState(room, "UPLOAD")
+
     }
 
 
@@ -167,11 +206,6 @@ class FirebaseService {
     }
 
     submitVote = async (room, player, judge, voter) => {
-        console.log("Room", room)
-        console.log("player", player)
-        console.log("judge", player)
-        console.log("judge", voter)
-
         let vote = 10
         if(judge){
             vote = 100
@@ -181,26 +215,29 @@ class FirebaseService {
         .collection('rooms')
         .doc(room)
         .get().then( resp => {
+            // if(!resp.data().players[player].caption){
+            //     vote = 0
+            // }
             let votes = resp.data().votes
-            let points = resp.data().players[player]["points"]
+            // let points = resp.data().players[player]["points"]
             let playerNum = Object.keys(resp.data().players).length
-            let gameState = resp.data().state
-            let roundScore = resp.data().players[player]["roundScore"]
-            points = points + vote
-            roundScore = roundScore + vote
+            // let roundScore = resp.data().players[player]["roundScore"]
+            // points = points + vote
+            // roundScore = roundScore + vote
             votes = votes + 1
 
-            if(playerNum == votes) {
-                gameState = "SCORING"
-            }
-            console.log("PLAYER - VOTING", vote)
-            console.log("RoundScore", roundScore)
+            let pointsInc = firebase.firestore.FieldValue.increment(vote) 
+            let roundInc = firebase.firestore.FieldValue.increment(vote)
+
+            console.log("Points Inc", pointsInc)
+            console.log("round Inc", roundInc)
+            console.log("Judge", judge)
 
             firebase
             .firestore()
             .collection('rooms')
             .doc(room)
-            .update({votes: votes, ["players." + player + ".roundScore"]: roundScore,["players." + player + ".points"]: points, ["players." + voter + ".voted"]: true })
+            .update({votes: votes, ["players." + player + ".roundScore"]: roundInc,["players." + player + ".points"]: pointsInc, ["players." + voter + ".voted"]: true })
         })
 
     }
@@ -240,6 +277,32 @@ class FirebaseService {
         })
     }
 
+    updateRoundTimestamp = (room, timer) => {
+        if(!timer){
+            let timestamp = Math.floor(Date.now() / 1000)
+            console.log(timestamp)
+
+            firebase
+            .firestore()
+            .collection('rooms')
+            .doc(room)
+            .update({
+                timer: true,
+                roundTimestamp: timestamp
+            })
+        }
+    }
+
+    updatePlayerTurn = (player, playerCount, room) => {
+        firebase
+        .firestore()
+        .collection("rooms")
+        .doc(room)
+        .update({
+            ["players." + player + ".turn"]: playerCount
+        })
+    }
+
     //Firebase Storage Functions
 
     uploadFile = (file, room, name) => {
@@ -257,6 +320,7 @@ class FirebaseService {
             })
         } )
     }
+
 
     downloadFile = (filepath) => {
         var storageRef = firebase.storage().ref(filepath)

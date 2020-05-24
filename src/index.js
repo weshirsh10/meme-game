@@ -8,7 +8,10 @@ import GameComponent from './game/game'
 import FirebaseService from './services/firebase'
 import 'react-image-lightbox/style.css'; // This only needs to be imported once in your app
 
+require('dotenv').config()
 
+console.log("PROCESS APIKEY", process.env.MEME_FB_API_KEY)
+console.log("PROCESS projectid", process.env.MEME_PROJECT_ID)
 
 //initialize FB connection
  const firebase = new FirebaseService();

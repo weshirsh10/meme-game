@@ -14,7 +14,8 @@ import Button from '@material-ui/core/Button';
 import FirebaseService from '../services/firebase'
 import logo from '../assets/svg/logo.svg'
 
-const firebase = new FirebaseService();
+const firebase = require('firebase')
+const fbService = new FirebaseService();
 
 const theme = createMuiTheme({
     palette: {
@@ -49,7 +50,7 @@ class LoginComponent extends React.Component {
         super();
         this.state = {
             name: null,
-            roomCode: null,
+            roomCode: "   ",
             nameError: '',
             roomError: '',
             joinRoom: false
@@ -57,22 +58,35 @@ class LoginComponent extends React.Component {
     }
 
     componentDidMount() {
-        console.log("mounted")
-        let user = {}
-        firebase.getUserStatus().onAuthStateChanged(
+
+        // firebase
+        // .firestore()
+        // .collection('rooms')
+        // .doc(this.state.roomCode)
+        // .onSnapshot(async resp => {
+        //     console.log("Login", resp.data())
+        //     try{
+        //         if(resp.data().players[fbService.getCurrentUser()]){
+        //             this.props.history.push('/game/' + resp.data().room + '/' + this.state.name )
+        //         }
+        //     }
+        //     catch(err){
+        //         console.log(err)
+        //     }
+           
+        // })
+       let user = {}
+        fbService.getUserStatus().onAuthStateChanged(
             user => {
                 //Get User and game from firebase
                 if(user){
-                    console.log("USER", user.uid)
-                    firebase.getUser(user.uid)
-                    .then( e => {
+                    fbService.getUser(user.uid)
+                     .then( e => {
                         let data = e.data()
-                        console.log(data)
 
-                        firebase.roomIsValid(data.room).then( room => {
-                            console.log("DID MOUNT ROOM", room)
+                        fbService.roomIsValid(data.room).then( async room => {
+                            console.log("Room Data",room.data())
                             if(room.data()) {
-                                console.log("ROOM EXISTED", room.data())
                                 this.props.history.push('/game/' + data.room + '/' + data.name )
                             }
 
@@ -147,7 +161,6 @@ class LoginComponent extends React.Component {
     formIsValid = () => this.state.name.length > 2
     
     userTyping = (type, e) => {
-        console.log(type,e)
         switch(type) {
             case 'name':
                 this.setState({ name: e.target.value });
@@ -171,9 +184,9 @@ class LoginComponent extends React.Component {
         }
         else {
             this.setState({nameError: ""})
-            firebase.createRoom(this.state.name)
+            fbService.createRoom(this.state.name)
             .then( (resp) => {
-                console.log("Check Firebase")
+                console.log("PUSH FROM ENTER")
                 this.props.history.push('/game/' + resp[1]+ "/" + this.state.name)
             }, dbError =>{
                 console.log("DBerror", dbError)
@@ -185,14 +198,15 @@ class LoginComponent extends React.Component {
     } 
 
     //Join As Player
-    onClickEnter = (e) => {
-
-        firebase.joinRoom(this.state.name, this.state.roomCode)
+    onClickEnter = async (e) => {
+        console.log("LOGIN STATE", this.state)
+        fbService.joinRoom(this.state.name, this.state.roomCode)
         .then( (resp) => {
+            console.log("Hello", resp)
             this.props.history.push('/game/' + this.state.roomCode + "/" + this.state.name)
         },dbError => {
-            console.log(dbError)
-            firebase.deleteUser()
+            console.error("FB ERROR", dbError)
+            fbService.deleteUser()
             this.setState({roomError: "Invalid Room Code"});
         })
 
@@ -201,7 +215,6 @@ class LoginComponent extends React.Component {
 
     onSubmitLogin = (e) => {
         e.preventDefault();
-        console.log("submitting", e)
         if(!this.formIsValid()) {
             this.setState({nameError: "Name must be at least 3 characters"});
         }

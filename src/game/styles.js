@@ -11,7 +11,7 @@ const styles = theme => ({
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      paddingBottom: '500px',
+      paddingBottom: '50vh',
       // paddingTop: theme.spacing.unit * 8,
 
 

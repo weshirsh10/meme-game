@@ -10,6 +10,8 @@ import Input from '@material-ui/core/Input';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import withStyles from '@material-ui/core/styles/withStyles';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import PersonIcon from '@material-ui/icons/Person';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 // import { createMuiTheme } from '@material-ui/core/styles';
@@ -44,7 +46,6 @@ class LobbyComponent extends React.Component {
 
     render () {
         const { classes } = this.props;
-        console.log("Lobby theme", this.props.theme)
         return (
             <ThemeProvider theme={this.props.theme}>
             <div className={classes.main}>
@@ -55,6 +56,9 @@ class LobbyComponent extends React.Component {
                         Object.values(this.props.players).map( (_player) => {
                             return(
                                 <ListItem>
+                                    <ListItemIcon>
+                                        <PersonIcon color='primary'/>
+                                    </ListItemIcon>
                                     <ListItemText align='center'>{_player.name}</ListItemText>
                                 </ListItem>
                             )
@@ -80,7 +84,7 @@ class LobbyComponent extends React.Component {
     onClickStart = (e) => {
         //make sure theres more than 2 people in room
         if(Object.keys(this.props.players).length > 2){
-            fbService.updateRoomState(this.props.room, "UPLOAD")
+            fbService.startGame(this.props.room, this.props.players)
         }
         else{
             this.setState({errorText: "At least 3 players are needed to start."})

@@ -10,11 +10,11 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
-import UploadComponent from './judge/upload'
-import WaitUploadComponent from './player/waitUpload'
-import CaptionComponent from './player/caption'
-import JudgeWaitingComponent from './judge/judgeWait'
-import VotingComponent from './voting'
+import UploadComponent from './round1/judge/upload'
+import WaitUploadComponent from './round1/player/waitUpload'
+import CaptionComponent from './round1/player/caption'
+import JudgeWaitingComponent from './round1/judge/judgeWait'
+import VotingComponent from './round1/voting'
 import ScoringComponent from './scoring'
 import LobbyComponent from './lobby'
 import FirebaseService from '../services/firebase'
@@ -63,7 +63,9 @@ class GameComponent extends React.Component {
             user: '',
             judgeImg: '',
             gameState: '',
-            turn: 1
+            turn: 1,
+            timer: false,
+            roundTimestamp: 0
             }
     }
 
@@ -83,6 +85,8 @@ class GameComponent extends React.Component {
             let _host = res.data().host
             let _turn = res.data().turn
             let _gameState = res.data().state
+            let _roundTimestamp = res.data().roundTimestamp
+            let _timer = res.data().timer
             let _judge = ''
             let _user = ''
             let _judgeImg = ''
@@ -92,7 +96,14 @@ class GameComponent extends React.Component {
                     _user = player
                     _judge = _players[player].name
                     _judgeImg = _players[player].imgPath
-                    break
+                }
+                else if (_players[player].turn == ''){
+                    try{
+                        fbService.updatePlayerTurn(player, res.data().playerCount, this.state.room)
+                    }
+                    catch(err){
+                        console.log(err)
+                    }
                 }
             }
             await this.setState( {
@@ -102,7 +113,9 @@ class GameComponent extends React.Component {
                 judge: _judge,
                 user: _user,
                 judgeImg: _judgeImg,
-                gameState: _gameState
+                gameState: _gameState,
+                roundTimestamp: _roundTimestamp,
+                timer: _timer
             } )
 
 
@@ -115,7 +128,7 @@ class GameComponent extends React.Component {
         const { classes } = this.props;
         console.log("GameState", this.state)
         return(
-            <div className={classes.main}>
+            <div className={classes.main} >
                 <div className={classes.paper}>
                     {
                         this.stateManager()
@@ -129,11 +142,11 @@ class GameComponent extends React.Component {
         if(this.state.name == this.state.judge){
             switch(this.state.gameState){
                 case "LOBBY":
-                    console.log("JUDGE", this.state.judge)
                     return <LobbyComponent theme={theme} hostName={this.state.judge} players={this.state.players} host={true} room={this.state.room} ></LobbyComponent>
                 case 'UPLOAD':
                    return <UploadComponent theme={theme} room={this.state.room} user={this.state.user}></UploadComponent>
                 case 'CAPTION':
+                    fbService.updateRoundTimestamp(this.state.room, this.state.timer)
                     let captionCount = 0
                     for(var _player in this.state.players){
                         if(this.state.players[_player].caption){
@@ -144,7 +157,7 @@ class GameComponent extends React.Component {
                         fbService.updateRoomState(this.state.room, "VOTING")
                     }
 
-                    return <JudgeWaitingComponent theme={theme} user={this.state.user} players={this.state.players}></JudgeWaitingComponent>
+                    return <JudgeWaitingComponent theme={theme} room={this.state.room} timestamp={this.state.roundTimestamp} user={this.state.user} players={this.state.players}></JudgeWaitingComponent>
 
                 case 'VOTING':
                     return <VotingComponent theme={theme} room={this.state.room} players={this.state.players} judge={true} filepath={this.state.judgeImg}></VotingComponent>
@@ -157,12 +170,11 @@ class GameComponent extends React.Component {
         else{
             switch(this.state.gameState){
                 case "LOBBY":
-                    console.log("gametheme", theme)
                     return <LobbyComponent theme={theme} hostName={this.state.judge} players={this.state.players} host={false} room={this.state.room} user={this.state.user}></LobbyComponent>
                 case 'UPLOAD':
                     return <WaitUploadComponent theme={theme}></WaitUploadComponent>
                 case 'CAPTION':
-                    return <CaptionComponent theme={theme} players={this.state.players} room={this.state.room} filepath={this.state.judgeImg}></CaptionComponent>
+                    return <CaptionComponent theme={theme} timestamp={this.state.roundTimestamp} players={this.state.players} room={this.state.room} filepath={this.state.judgeImg}></CaptionComponent>
                 case 'VOTING':
                     return <VotingComponent theme={theme} room={this.state.room} turn={this.state.turn} players={this.state.players} judge={false} filepath={this.state.judgeImg}></VotingComponent>
                 case 'SCORING':

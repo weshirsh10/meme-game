@@ -12,7 +12,7 @@ import Button from '@material-ui/core/Button';
 import { ThemeProvider } from '@material-ui/core/styles'
 
 
-import judgeWaiting from '../../assets/svg/waitforjudge.svg'
+import judgeWaiting from '../../../assets/svg/waitforjudge.svg'
 
 class WaitUploadComponent extends React.Component {
 
@@ -21,7 +21,7 @@ class WaitUploadComponent extends React.Component {
         return(
             <ThemeProvider theme={this.props.theme}>
             <div className={classes.waitImgContainer}>
-                <img lassName={classes.imgScale} src={judgeWaiting}/>
+                <img className={classes.imgScale} src={judgeWaiting}/>
             </div>
             </ThemeProvider>
         )

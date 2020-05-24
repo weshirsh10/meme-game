@@ -10,11 +10,11 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import PublishIcon from '@material-ui/icons/Publish';
-import uploadArrow from '../../assets/svg/uploadArrow.svg'
+import uploadArrow from '../../../assets/svg/uploadArrow.svg'
 import { ThemeProvider } from '@material-ui/core/styles'
 
 
-import FirebaseService from '../../services/firebase'
+import FirebaseService from '../../../services/firebase'
 
 
 const fbService = new FirebaseService
@@ -55,9 +55,7 @@ class UploadComponent extends React.Component {
     }
 
     handleFileChange = e => {
-        console.log(e)  
         if (e.target.files.length) {
-            console.log("HOWDY")
             this.setState({
                 imagePreview: URL.createObjectURL(e.target.files[0]),
                 raw: e.target.files[0]

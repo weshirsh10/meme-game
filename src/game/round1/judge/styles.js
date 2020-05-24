@@ -48,7 +48,6 @@ const styles = theme => ({
         width: '40%',
         backgroundColor: '#57C5C9',
         color: '#303030',
-        marginRight: theme.spacing.unit*2,
       marginTop: theme.spacing.unit * 3,
       '&:hover': {
         color: '#ffffff'

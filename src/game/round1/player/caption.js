@@ -12,13 +12,13 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import uploadArrow from '../../assets/svg/uploadArrow.svg'
 import Lightbox from 'react-image-lightbox';
 import IconButton from '@material-ui/core/IconButton';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
+import TimerComponent from '../../timer'
 import { ThemeProvider } from '@material-ui/core/styles'
 
-import FirebaseService from '../../services/firebase'
+import FirebaseService from '../../../services/firebase'
 
 const fbService = new FirebaseService()
 
@@ -30,6 +30,7 @@ class CaptionComponent extends React.Component {
             imgUrl: '',
             submitted: false,
             isOpen: false,
+            currentUser: ''
 
         }
     }
@@ -38,10 +39,16 @@ class CaptionComponent extends React.Component {
         fbService.downloadFile(this.props.filepath).then(
             url => {
                 let _imgUrl = url
-                console.log(_imgUrl)
                 this.setState({imgUrl: _imgUrl})
             }
         )
+        
+
+        // await this.setState( async () => {
+        //     let user = await fbService.getCurrentUser()
+        //     console.log("USER", user)
+        //     return {currentUser: user}
+        // })
     }
 
     render() {
@@ -62,6 +69,7 @@ class CaptionComponent extends React.Component {
                 {
                     this.submitState(classes)
                 }
+                <TimerComponent theme={this.props.theme} startTime={this.props.timestamp} nextState="VOTING" room={this.props.room}/>
         {this.state.isOpen && (
           <Lightbox
             mainSrc={this.state.imgUrl}
@@ -75,7 +83,8 @@ class CaptionComponent extends React.Component {
     }
 
     submitState = (classes) => {
-        if(this.state.submitted){
+        console.log("CurrentUser", this.state.currentUser)
+        if(this.props.players[fbService.getCurrentUser()].caption){
             return (<div>
                 Waiting for Other players
             </div>)

@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './styles';
+import styles from '../styles';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Input from '@material-ui/core/Input';
@@ -24,8 +24,8 @@ import { ThemeProvider } from '@material-ui/core/styles'
 
 
 
-
-import FirebaseService from '../services/firebase'
+import { randCaptionArray } from '../../services/randCaptionArray'
+import FirebaseService from '../../services/firebase'
 
 const fbService = new FirebaseService();
 
@@ -46,7 +46,6 @@ class VotingComponent extends React.Component {
         fbService.downloadFile(this.props.filepath).then(
             url => {
                 let _imgUrl = url
-                console.log(_imgUrl)
                 this.setState({imgUrl: _imgUrl})
             }
         )
@@ -54,15 +53,17 @@ class VotingComponent extends React.Component {
         let captionArray = []
         let voted = false
         for(var player in this.props.players){
-            console.log("Player", player)
-            console.log("user", fbService.getCurrentUser())
             if(this.props.players[player].caption && player != fbService.getCurrentUser()){
 
                 captionArray.push({player: player, caption: this.props.players[player].caption})
             }
             
-            voted = this.props.players[fbService.getCurrentUser()].voted
-            console.log("VOTE",voted)
+            try{
+                voted = this.props.players[fbService.getCurrentUser()].voted
+            }
+            catch(err){
+                console.log(err)
+            }
         }
 
         await this.setState( () => {
@@ -73,7 +74,6 @@ class VotingComponent extends React.Component {
 
     render() {
         const { classes } = this.props;
-        console.log("VOTE STATE", this.state)
         return(
             <ThemeProvider theme={this.props.theme}>
             <div className={classes.main}>
@@ -131,7 +131,6 @@ class VotingComponent extends React.Component {
     renderVotes = () => {
         let votes = 0
         return Object.entries(this.props.players).map((_player) => {
-            console.log("Voted", _player[1].voted)
             if(_player[1].voted){
                 votes = votes + 1
                 if(votes == Object.keys(this.props.players).length){
