@@ -115,7 +115,7 @@ class VotingComponent extends React.Component {
 
                 <div className={classes.points}>
                     <Typography component='h2' variant='h5' color='secondary' >Judge Vote = 100pts</Typography>
-                    <Typography component='h2' variant='h5' color='secondary'>Player Vote = 10pts</Typography>
+            <Typography component='h2' variant='h5' color='secondary'>Player Vote = {this.props.playerPoints}pts</Typography>
                 </div>
         {this.state.isOpen && (
           <Lightbox
@@ -173,7 +173,7 @@ class VotingComponent extends React.Component {
     onCLickVote = (e) => {
         e.preventDefault();
         this.setState({voted: true})
-        fbService.submitVote(this.props.room, this.state.captions[this.state.captionIndex].player, this.props.judge, fbService.getCurrentUser())
+        fbService.submitVote(this.props.room, this.state.captions[this.state.captionIndex].player, this.props.judge, fbService.getCurrentUser(), this.props.playerPoints)
         
     }
 

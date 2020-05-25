@@ -29,10 +29,30 @@ class ScoringComponent extends React.Component {
     constructor(){
         super()
         this.state = {
-            scoretable:[]
+            scoretable:[],
+            round: null,
+            images: []
         }
     }
 
+    componentDidMount = async () =>{
+        let imgArray =[]
+        await this.setState({round: this.props.round})
+
+        if(this.props.round == 2){
+            for(var player in this.props.players){
+                if(this.props.players[player].imgPath){
+                    let filePath = await fbService.downloadFile(this.props.players[player].imgPath)
+
+                    imgArray.push({player: this.props.players[player].name, img: filePath})
+                }
+            }
+
+            await this.setState( () => {
+                return {images: imgArray}
+            })
+        }
+    }
 
     render(){
         window.scrollTo(0, 0)
@@ -42,7 +62,9 @@ class ScoringComponent extends React.Component {
             <div className={classes.startDiv}>
             <Typography component='h1' variant='h2'>Scores</Typography>
             { this.renderScoreCard(this.props.players)}
-
+            {
+                this.state.round == 2? this.renderImages() : null
+            }
             {
                 this.props.judge ?
                 <Button className={classes.submit} type="contained" onClick={e => this.onClickContinue(e)}>Continue</Button> :
@@ -56,7 +78,12 @@ class ScoringComponent extends React.Component {
     }
 
     onClickContinue = () => {
-        fbService.clearState("UPLOAD", this.props.room)
+        if(this.state.round == 1){
+            fbService.clearState("UPLOAD", this.props.room)
+        }
+        else if(this.state.round == 2){
+            fbService.clearState("CAPTION2", this.props.room)
+        }
     }
 
     renderScoreCard = (players) => {
@@ -89,7 +116,10 @@ class ScoringComponent extends React.Component {
                             <TableCell style={{fontSize: 15, color: '#57C5C9'}} >Player</TableCell>
                             <TableCell style={{ fontSize: 15, color: '#57C5C9'}} >Round</TableCell>
                             <TableCell style={{ fontSize: 15, color: '#57C5C9'}} >Total</TableCell>
-                            <TableCell style={{fontSize: 15, color: '#57C5C9'}} >Caption</TableCell>
+                            {
+                                this.state.round == 1 ? <TableCell style={{fontSize: 15, color: '#57C5C9'}} >Caption</TableCell> : null
+                            }
+                           
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -101,7 +131,9 @@ class ScoringComponent extends React.Component {
                                     <TableCell style={{color: 'white'}}>{player.name}</TableCell>
                                     <TableCell style={{color: 'white'}}> {player.roundScore}</TableCell>
                                     <TableCell style={{color: 'white'}}> {player.points}</TableCell>
-                                    <TableCell style={{color: 'white'}}>{player.caption}</TableCell>
+                                    {
+                                        this.state.round == 1 ? <TableCell style={{color: 'white'}}>{player.caption}</TableCell> : null
+                                    }
                                 </TableRow>
                                 )
                             })
@@ -110,6 +142,27 @@ class ScoringComponent extends React.Component {
 
                 </Table>
             </TableContainer>
+        )
+    }
+
+    renderImages =() => {
+
+        return(
+            <div>
+                <Typography align='center' component='h4' variant='h4'>images</Typography>
+                <div className={this.props.classes.scoringImgContainer}>
+                { this.state.images.map((image) => {
+                    console.log("Person", image)
+                    return (
+                        <div className={this.props.classes.scoringImg}>
+                            <img className={this.props.classes.imgScale}src={image.img}/>
+                            <Typography>{image.player}</Typography>
+                        </div>
+                    )
+                })}
+                </div>
+                
+            </div>
         )
     }
 

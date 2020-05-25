@@ -30,7 +30,8 @@ class FirebaseService {
             points: 0,
             imgPath: '',
             caption: '',
-            voted: false
+            voted: false,
+            round: 1
 
         }
 
@@ -41,7 +42,8 @@ class FirebaseService {
             votes: 0,
             host: hostName,
             players: playerObj,
-            playerCount: 1
+            playerCount: 1,
+            round: 1
         }
 
         return [firebase
@@ -150,6 +152,7 @@ class FirebaseService {
     }
 
     updateRoomState = (room, _state) => {
+        console.log(_state)
         let updateObj = {timer: false, state: _state}
 
         if(_state == 'VOTING'){
@@ -169,6 +172,25 @@ class FirebaseService {
                  .doc(room)
                  .update(updateObj)
 
+            })
+        }
+        else if (_state == "UPLOAD2"){
+            firebase
+            .firestore()
+            .collection('rooms')
+            .doc(room)
+            .get().then(resp => {
+                for(var player in resp.data().players){
+                    if(resp.data().players[player].turn == resp.data().turn && !resp.data().players[player].caption){
+                        updateObj["players." + player + ".caption"] = randCaptionArray[Math.floor(Math.random() * randCaptionArray.length)]
+                        break
+                    }
+                }
+
+                firebase.firestore()
+                .collection("rooms")
+                 .doc(room)
+                 .update(updateObj)
             })
         }
         else{
@@ -205,8 +227,8 @@ class FirebaseService {
         .update({["players." + user.uid + ".caption"]: caption})
     }
 
-    submitVote = async (room, player, judge, voter) => {
-        let vote = 10
+    submitVote = async (room, player, judge, voter, points) => {
+        let vote = points
         if(judge){
             vote = 100
         }
@@ -250,15 +272,25 @@ class FirebaseService {
         .get().then( resp => {
             let players = resp.data().players
             let turn = resp.data().turn + 1
+            let round = resp.data().round
 
             if(turn > Object.keys(players).length){
-                turn = 1    
+                turn = 1 
+                round = round + 1
+                if(round == 2){
+                    newState = "CAPTION2"
+                }
+                else if(round == 3){
+                    newState = "UPLOAD"
+                    round = 1
+                }
             }
 
             let updateObj = {
                 turn: turn,
                 state: newState,
-                votes: 0
+                votes: 0,
+                round: round
             }
 
             for(var player in players){
@@ -320,6 +352,22 @@ class FirebaseService {
             })
         } )
     }
+
+    uploadFile2 = (file, room, name) => {
+        let path = room + "/" + name + "/round2"
+        var storageRef = firebase.storage().ref(path)
+        storageRef.put(file).then( (snapshot) => {
+            //update image file path
+            firebase
+            .firestore()
+            .collection('rooms')
+            .doc(room)
+            .update({
+                ["players." + name +".imgPath"]: path
+            })
+        } )
+    }
+    
 
 
     downloadFile = (filepath) => {

@@ -5,15 +5,13 @@ const styles = theme => ({
     main: {
       width: '100%',
       height: '100%',
+      position: 'fixed',
       top: '0',
       left: '0',
       display: 'flex', // Fix IE 11 issue.
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      paddingBottom: '50vh',
-      // paddingTop: theme.spacing.unit * 8,
-
 
 
       // marginLeft: theme.spacing.unit * 3,
@@ -50,10 +48,9 @@ const styles = theme => ({
         width: '40%',
         backgroundColor: '#57C5C9',
         color: '#303030',
-        marginTop: theme.spacing.unit * 3,
-        marginBottom: theme.spacing.unit * 3,
+      marginTop: theme.spacing.unit * 3,
       '&:hover': {
-        color: '#000000'
+        color: '#ffffff'
       }
     },
     hasAccountHeader: {
@@ -112,72 +109,40 @@ const styles = theme => ({
       
     },
     downloadImg: {
-      width: "400px",
-      height: "400px",
-      objectFit: "cover",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      [theme.breakpoints.down('sm')]: {
-        width: "90%",
-      },
-
-    },
-    scoringImgContainer: {
-      width: '90%',
-      display: "flex",
-      flexWrap: "wrap",
-      flexDirection: "row"
-    },
-    scoringImg: {
-      width: "100px",
-      height: "100px",
-      objectFit: "cover",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      margin: theme.spacing.unit * 3
-      // [theme.breakpoints.down('sm')]: {
-      //   width: "90%",
-      // },
-
+      width: "200px",
+      height: "200px",
     },
     imgScale: {
       maxWidth: "100%",
       maxHeight: "100%"
 
     },
-    captionDisplay: {
+    uploadArea: {
+      maxWidth: '100vh',
+      maxHeight: '80%',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    uploadImg: {
+      width: "100vh",
+      height: "300px",
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    waitListItem: {
+      width: "100px",
       display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      width: "400px",
-      [theme.breakpoints.down('sm')]: {
-        width: "90%",
-      },
-      marginTop: theme.spacing.unit * 3,
-      marginBottom: theme.spacing.unit * 3,
-    },
-    points: {
       margin: theme.spacing.unit * 3
     },
-    startDiv: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '400px',
-      [theme.breakpoints.down('sm')]: {
-        width: "90%",
-      },
-    },
-    votesReceived: {
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "center",
-      alignItems: "center"
+    waitItem: {
+
     }
   });
   
