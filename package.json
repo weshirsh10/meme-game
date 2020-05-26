@@ -11,6 +11,7 @@
     "bootstrap": "^4.4.1",
     "dotenv": "^8.2.0",
     "firebase": "^7.14.2",
+    "puppeteer-cluster": "^0.21.0",
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.1",
     "react-dom": "^16.13.1",
@@ -22,7 +23,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "jest --config ./jest.config.js",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -39,5 +40,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.9.6",
+    "jest-puppeteer": "^4.4.0",
+    "puppeteer": "^3.1.0"
   }
 }

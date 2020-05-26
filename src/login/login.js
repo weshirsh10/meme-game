@@ -117,10 +117,10 @@ class LoginComponent extends React.Component {
                     <form onSubmit={(e) => this.onSubmitLogin(e)} className={classes.form} >
                         <FormControl className={classes.formRoot} required fullWidth margin='normal'>
                             <InputLabel color='white' className={classes.inputLabel} htmlFor='login-name-input'>Enter Your Name</InputLabel>
-                            <Input color='white' autoComplete='Name' onChange={(e) => this.userTyping('name', e)} autoFocus id='login-name-input'></Input>
+                            <Input id='name' color='white' autoComplete='Name' onChange={(e) => this.userTyping('name', e)} autoFocus id='login-name-input'></Input>
                         </FormControl>
                         <Box display="flex" justifyContent="center" alignItems="center">
-                            <Button type='submit' onClick={(e) => this.onClickHost(e)} variant='contained' className={classes.submit}>Host Game</Button>
+                            <Button id='hostGame' type='submit' onClick={(e) => this.onClickHost(e)} variant='contained' className={classes.submit}>Host Game</Button>
                             <Button type='submit' id="join" variant='contained' className={classes.submit}>Join Room</Button>
                         </Box>
                     </form>

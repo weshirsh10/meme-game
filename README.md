@@ -1,3 +1,8 @@
+![Image description](https://github.com/weshirsh10/meme-game/blob/master/images/home_page.png)
+
+Meme Me Up is a game designed to be played while socially distant or while hanging out with friends. The game consists of a host creating a game room and inviting players to the room. When the game starts the player that is the judge will upload their own unique photo. The other players will all come up with a caption for the photo. Then once all captions are in all the players vote on who came up with the best caption. There are 3 rounds of this each with slightly different gameplay
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
