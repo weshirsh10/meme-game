@@ -33,6 +33,7 @@ class Upload2Component extends React.Component {
 
     render() {
         const { classes } = this.props;
+        console.log("HELLLLLOOOO", this.props.currentUser)
         return(
             <ThemeProvider theme={this.props.theme}>
             <div className={classes.main}>
@@ -70,8 +71,7 @@ class Upload2Component extends React.Component {
 
     handleFileUpload = async e => {
         e.preventDefault();
-        let currentUser = await fbService.getCurrentUser()
-        fbService.uploadFile2(this.state.raw, this.props.room, currentUser)
+        fbService.uploadFile2(this.state.raw, this.props.room, this.props.currentUser)
         this.setState({selected: true})
 
     }

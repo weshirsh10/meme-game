@@ -53,13 +53,13 @@ class VotingComponent extends React.Component {
         let captionArray = []
         let voted = false
         for(var player in this.props.players){
-            if(this.props.players[player].caption && player != fbService.getCurrentUser()){
+            if(this.props.players[player].caption && player != this.props.currentUser){
 
                 captionArray.push({player: player, caption: this.props.players[player].caption})
             }
             
             try{
-                voted = this.props.players[fbService.getCurrentUser()].voted
+                voted = this.props.players[this.props.currentUser].voted
             }
             catch(err){
                 console.log(err)
@@ -99,7 +99,7 @@ class VotingComponent extends React.Component {
                         <ChevronRightIcon color='secondary'/>
                     </IconButton>
                 </div>
-                <Button color='secondary' disabled={this.state.voted} type="submit" variant="contained" onClick = {(e) => this.onCLickVote(e)}>Vote</Button>
+                <Button id="voteButton" color='secondary' disabled={this.state.voted} type="submit" variant="contained" onClick = {(e) => this.onCLickVote(e)}>Vote</Button>
                 {
                     <Typography> 
                         {
@@ -173,7 +173,8 @@ class VotingComponent extends React.Component {
     onCLickVote = (e) => {
         e.preventDefault();
         this.setState({voted: true})
-        fbService.submitVote(this.props.room, this.state.captions[this.state.captionIndex].player, this.props.judge, fbService.getCurrentUser(), this.props.playerPoints)
+        console.log("VOTERRRR", this.props.currentUser)
+        fbService.submitVote(this.props.room, this.state.captions[this.state.captionIndex].player, this.props.judge, this.props.currentUser, this.props.playerPoints)
         
     }
 

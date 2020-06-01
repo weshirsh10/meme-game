@@ -42,7 +42,7 @@ class Caption2Component extends React.Component{
                     <Box display="flex" justifyContent="center" alignItems="center">
                         <Button className={classes.submit} type='submit' onClick={(e) => this.onClickSubmit(e)} variant='contained' color='primary'>Submit</Button>
                     </Box>
-                    <TimerComponent theme={this.props.theme} startTime={this.props.timestamp} nextState="UPLOAD2" room={this.props.room}/>
+                    <TimerComponent theme={this.props.theme} judge={true} startTime={this.props.timestamp} nextState="UPLOAD2" room={this.props.room}/>
                 </div>
             </ThemeProvider>
         )

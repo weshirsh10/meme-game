@@ -40,6 +40,9 @@ const theme = createMuiTheme({
         h2: {
             fontFamily: ['Squada One']
         },
+        h3: {
+            fontSize: 12,
+        },
         h4: {
             fontSize: 20
         },
@@ -67,18 +70,29 @@ class GameComponent extends React.Component {
             user: '',
             judgeImg: '',
             gameState: '',
+            currentUser: '',
             turn: 1,
             timer: false,
             roundTimestamp: 0,
             playerPoints: 10,
+            spectating: false,
             }
     }
 
     componentDidMount = async () => {
+
+
         await this.setState((state, props) => {
             let room = String(props.match.params.room)
             return {room: room.toUpperCase(), name: props.match.params.name}
             // name: props.match.params.name
+        })
+
+        await fbService.getUserStatus().onAuthStateChanged((user) => {
+            if(user){
+                console.log("USER", user.uid)
+                return this.setState({currentUser: user.uid})
+            }
         })
 
         await firebase
@@ -105,14 +119,6 @@ class GameComponent extends React.Component {
                     _judge = _players[player].name
                     _judgeImg = _players[player].imgPath
                     _judgeCaption = _players[player].caption
-                }
-                else if (_players[player].turn == ''){
-                    try{
-                        fbService.updatePlayerTurn(player, res.data().playerCount, this.state.room)
-                    }
-                    catch(err){
-                        console.log(err)
-                    }
                 }
             }
             await this.setState( {
@@ -155,9 +161,19 @@ class GameComponent extends React.Component {
             if(this.state.name == this.state.judge){
                 switch(this.state.gameState){
                     case "LOBBY":
-                        return <LobbyComponent theme={theme} hostName={this.state.judge} players={this.state.players} host={true} room={this.state.room} ></LobbyComponent>
+                        return <LobbyComponent 
+                        theme={theme} 
+                        hostName={this.state.judge} 
+                        players={this.state.players} 
+                        host={true} 
+                        room={this.state.room} ></LobbyComponent>
+
                     case 'UPLOAD':
-                       return <UploadComponent theme={theme} room={this.state.room} user={this.state.user}></UploadComponent>
+                       return <UploadComponent 
+                       theme={theme} 
+                       room={this.state.room} 
+                       user={this.state.user}></UploadComponent>
+
                     case 'CAPTION':
                         fbService.updateRoundTimestamp(this.state.room, this.state.timer)
                         let captionCount = 0
@@ -170,28 +186,74 @@ class GameComponent extends React.Component {
                             fbService.updateRoomState(this.state.room, "VOTING")
                         }
     
-                        return <JudgeWaitingComponent theme={theme} room={this.state.room} timestamp={this.state.roundTimestamp} user={this.state.user} players={this.state.players}></JudgeWaitingComponent>
+                        return <JudgeWaitingComponent 
+                        theme={theme} 
+                        room={this.state.room} 
+                        timestamp={this.state.roundTimestamp} 
+                        user={this.state.user} 
+                        players={this.state.players}></JudgeWaitingComponent>
     
                     case 'VOTING':
-                        return <VotingComponent theme={theme} playerPoints={this.state.playerPoints} room={this.state.room} players={this.state.players} judge={true} filepath={this.state.judgeImg}></VotingComponent>
+                        return <VotingComponent 
+                        theme={theme} 
+                        currentUser={this.state.currentUser} 
+                        playerPoints={this.state.playerPoints} 
+                        room={this.state.room} 
+                        players={this.state.players} 
+                        judge={true} 
+                        filepath={this.state.judgeImg}></VotingComponent>
                     
                     case 'SCORING':
-                        return <ScoringComponent theme={theme} round={this.state.round} judge={true} room={this.state.room} players={this.state.players}></ScoringComponent>
+                        return <ScoringComponent 
+                        theme={theme} 
+                        round={this.state.round} 
+                        judge={true} 
+                        room={this.state.room} 
+                        players={this.state.players}></ScoringComponent>
     
                 }
             }
             else{
                 switch(this.state.gameState){
                     case "LOBBY":
-                        return <LobbyComponent theme={theme} hostName={this.state.judge} players={this.state.players} host={false} room={this.state.room} user={this.state.user}></LobbyComponent>
+                        return <LobbyComponent 
+                        theme={theme} 
+                        hostName={this.state.judge} 
+                        players={this.state.players} 
+                        host={false} 
+                        room={this.state.room} 
+                        user={this.state.user}></LobbyComponent>
+
                     case 'UPLOAD':
-                        return <WaitUploadComponent theme={theme}></WaitUploadComponent>
+                        return <WaitUploadComponent 
+                        theme={theme}></WaitUploadComponent>
+
                     case 'CAPTION':
-                        return <CaptionComponent theme={theme} timestamp={this.state.roundTimestamp} players={this.state.players} room={this.state.room} filepath={this.state.judgeImg}></CaptionComponent>
+                        return <CaptionComponent 
+                        theme={theme} 
+                        currentUser={this.state.currentUser} 
+                        timestamp={this.state.roundTimestamp} 
+                        players={this.state.players} 
+                        room={this.state.room} 
+                        filepath={this.state.judgeImg}></CaptionComponent>
+
                     case 'VOTING':
-                        return <VotingComponent theme={theme} playerPoints={this.state.playerPoints} room={this.state.room} turn={this.state.turn} players={this.state.players} judge={false} filepath={this.state.judgeImg}></VotingComponent>
+                        return <VotingComponent 
+                        theme={theme} 
+                        currentUser={this.state.currentUser} 
+                        playerPoints={this.state.playerPoints} 
+                        room={this.state.room} 
+                        turn={this.state.turn} 
+                        players={this.state.players} 
+                        judge={false} 
+                        filepath={this.state.judgeImg}></VotingComponent>
                     case 'SCORING':
-                        return <ScoringComponent theme={theme} round={this.state.round} judge={false} room={this.state.room} players={this.state.players}></ScoringComponent>
+                        return <ScoringComponent 
+                        theme={theme} 
+                        round={this.state.round} 
+                        judge={false} 
+                        room={this.state.room} 
+                        players={this.state.players}></ScoringComponent>
     
                 }
             }
@@ -201,7 +263,11 @@ class GameComponent extends React.Component {
                 switch(this.state.gameState){
                     case "CAPTION2":
                         fbService.updateRoundTimestamp(this.state.room, this.state.timer)
-                        return <Caption2Component theme={theme} timestamp={this.state.roundTimestamp} room={this.state.room}></Caption2Component>
+                        return <Caption2Component 
+                        theme={theme} 
+                        timestamp={this.state.roundTimestamp} 
+                        room={this.state.room}></Caption2Component>
+
                     case "UPLOAD2":
                         let imgCount = 0
                         for(var _player in this.state.players){
@@ -212,25 +278,63 @@ class GameComponent extends React.Component {
                         if(imgCount == Object.keys(this.state.players).length -1){
                             fbService.updateRoomState(this.state.room, "VOTING2")
                         }
-                        return <JudgeWaiting2Component theme={theme} room={this.state.room} timestamp={this.state.roundTimestamp} user={this.state.user} players={this.state.players}></JudgeWaiting2Component>
+                        
+                        return <JudgeWaiting2Component 
+                        theme={theme} room={this.state.room} 
+                        timestamp={this.state.roundTimestamp} 
+                        user={this.state.user} 
+                        players={this.state.players}></JudgeWaiting2Component>
 
                     case "VOTING2":
-                        return <Voting2Component theme={theme} judge={true} players={this.state.players} playerPoints={this.state.playerPoints} room={this.state.room}></Voting2Component>
-                    case "SCORING2":
-                        return <ScoringComponent round={this.state.round} theme={theme} judge={true} room={this.state.room} players={this.state.players}></ScoringComponent>
+                        return <Voting2Component 
+                        theme={theme} 
+                        currentUser={this.state.currentUser} 
+                        judge={true} 
+                        players={this.state.players} 
+                        playerPoints={this.state.playerPoints} 
+                        room={this.state.room}></Voting2Component>
 
+                    case "SCORING2":
+                        return <ScoringComponent 
+                        round={this.state.round} 
+                        theme={theme} 
+                        judge={true} 
+                        room={this.state.room} 
+                        players={this.state.players}></ScoringComponent>
 
                 }
             }else{
                 switch(this.state.gameState){
                     case "CAPTION2":
-                        return <WaitUploadComponent theme={theme} timestamp={this.state.roundTimestamp} round={this.state.round} room={this.state.room}></WaitUploadComponent>
+                        return <WaitUploadComponent 
+                        theme={theme} 
+                        timestamp={this.state.roundTimestamp} 
+                        round={this.state.round} 
+                        room={this.state.room}></WaitUploadComponent>
+
                     case "UPLOAD2":
-                        return <Upload2Component theme={theme} room={this.state.room} caption={this.state.judgeCaption}></Upload2Component>
+                        return <Upload2Component 
+                        theme={theme} 
+                        currentUser={this.state.currentUser} 
+                        room={this.state.room} 
+                        caption={this.state.judgeCaption}></Upload2Component>
+
                     case "VOTING2":
-                        return <Voting2Component theme={theme} playerPoints={this.state.playerPoints} judge={false} players={this.state.players} room={this.state.room}></Voting2Component>
+                        return <Voting2Component 
+                        theme={theme} 
+                        currentUser={this.state.currentUser} 
+                        playerPoints={this.state.playerPoints} 
+                        judge={false} 
+                        players={this.state.players} 
+                        room={this.state.room}></Voting2Component>
+
                     case "SCORING2":
-                        return <ScoringComponent theme={theme} round={this.state.round} judge={false} room={this.state.room} players={this.state.players}></ScoringComponent>
+                        return <ScoringComponent 
+                        theme={theme} 
+                        round={this.state.round} 
+                        judge={false} 
+                        room={this.state.room} 
+                        players={this.state.players}></ScoringComponent>
     
                 }
 

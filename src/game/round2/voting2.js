@@ -32,7 +32,7 @@ class Voting2Component extends React.Component {
         let voted = false
         let caption =''
         for(var player in this.props.players){
-            if(this.props.players[player].imgPath && player != fbService.getCurrentUser()){
+            if(this.props.players[player].imgPath && player != this.props.currentUser){
                 let filePath = await fbService.downloadFile(this.props.players[player].imgPath)
                 imgArray.push({player: player, img: filePath})
             }
@@ -41,7 +41,7 @@ class Voting2Component extends React.Component {
             }
         }
         try{
-            voted = this.props.players[fbService.getCurrentUser()].voted
+            voted = this.props.players[this.props.currentUser].voted
         }
         catch(err){
             console.log(err)
@@ -152,7 +152,7 @@ class Voting2Component extends React.Component {
     onCLickVote = (e) => {
         e.preventDefault();
         this.setState({voted: true})
-        fbService.submitVote(this.props.room, this.state.images[this.state.imgIndex].player, this.props.judge, fbService.getCurrentUser(), this.props.playerPoints)
+        fbService.submitVote(this.props.room, this.state.images[this.state.imgIndex].player, this.props.judge, this.props.currentUser, this.props.playerPoints)
         
     }
 

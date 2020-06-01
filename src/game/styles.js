@@ -123,21 +123,32 @@ const styles = theme => ({
       },
 
     },
+    scoreImgParent: {
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      marginTop: '20px',
+      justifyContent: 'center'
+    },
     scoringImgContainer: {
-      width: '90%',
+      width: '100%',
       display: "flex",
       flexWrap: "wrap",
-      flexDirection: "row"
+      flexDirection: "row",
+      marginTop: '10px',
+      alignItems: 'center',
+      justifyContent: 'center'
     },
     scoringImg: {
-      width: "100px",
-      height: "100px",
+      width: "150px",
+      height: "100%",
       objectFit: "cover",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      margin: theme.spacing.unit * 3
+      margin: theme.spacing.unit * 2
       // [theme.breakpoints.down('sm')]: {
       //   width: "90%",
       // },

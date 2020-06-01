@@ -44,7 +44,7 @@ class ScoringComponent extends React.Component {
                 if(this.props.players[player].imgPath){
                     let filePath = await fbService.downloadFile(this.props.players[player].imgPath)
 
-                    imgArray.push({player: this.props.players[player].name, img: filePath})
+                    imgArray.push({player: this.props.players[player].name, img: filePath,})
                 }
             }
 
@@ -67,7 +67,7 @@ class ScoringComponent extends React.Component {
             }
             {
                 this.props.judge ?
-                <Button className={classes.submit} type="contained" onClick={e => this.onClickContinue(e)}>Continue</Button> :
+                <Button id="continueButton" className={classes.submit} type="contained" onClick={e => this.onClickContinue(e)}>Continue</Button> :
                 <Typography style={{margin: '20px'}} align='center' component='h2' color='secondary'>Waiting for judge to continue.</Typography>
             }
             </div>
@@ -129,7 +129,12 @@ class ScoringComponent extends React.Component {
                                 return(
                                 <TableRow>
                                     <TableCell style={{color: 'white'}}>{player.name}</TableCell>
-                                    <TableCell style={{color: 'white'}}> {player.roundScore}</TableCell>
+                                    <TableCell style={{color: 'white'}}> 
+                                        {/* {player.roundScore}<br/>{player.voters} */}
+                                        <Typography>{player.roundScore}</Typography>
+                                        <Typography component='h3' variant='h3' color='secondary'>{player.voters}</Typography>
+    
+                                    </TableCell>
                                     <TableCell style={{color: 'white'}}> {player.points}</TableCell>
                                     {
                                         this.state.round == 1 ? <TableCell style={{color: 'white'}}>{player.caption}</TableCell> : null
@@ -148,15 +153,14 @@ class ScoringComponent extends React.Component {
     renderImages =() => {
 
         return(
-            <div>
-                <Typography align='center' component='h4' variant='h4'>images</Typography>
+            <div className={this.props.classes.scoreImgParent}>
+                <Typography  align='center' component='h4' variant='h4'>images</Typography>
                 <div className={this.props.classes.scoringImgContainer}>
                 { this.state.images.map((image) => {
-                    console.log("Person", image)
                     return (
                         <div className={this.props.classes.scoringImg}>
                             <img className={this.props.classes.imgScale}src={image.img}/>
-                            <Typography>{image.player}</Typography>
+                            <Typography color='secondary'>{image.player}</Typography>
                         </div>
                     )
                 })}

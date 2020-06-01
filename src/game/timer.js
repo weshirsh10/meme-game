@@ -20,7 +20,7 @@ class TimerComponent extends React.Component {
 
         this.myInterval = setInterval( () => {
             let currentTime = Math.floor(Date.now() / 1000)
-            if(this.state.count <= 0){
+            if(this.state.count <= 0 && this.props.judge){
                 fbService.updateRoomState(this.props.room, this.props.nextState)
             }
             else{

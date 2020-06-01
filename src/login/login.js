@@ -59,22 +59,6 @@ class LoginComponent extends React.Component {
 
     componentDidMount() {
 
-        // firebase
-        // .firestore()
-        // .collection('rooms')
-        // .doc(this.state.roomCode)
-        // .onSnapshot(async resp => {
-        //     console.log("Login", resp.data())
-        //     try{
-        //         if(resp.data().players[fbService.getCurrentUser()]){
-        //             this.props.history.push('/game/' + resp.data().room + '/' + this.state.name )
-        //         }
-        //     }
-        //     catch(err){
-        //         console.log(err)
-        //     }
-           
-        // })
        let user = {}
         fbService.getUserStatus().onAuthStateChanged(
             user => {
@@ -139,7 +123,7 @@ class LoginComponent extends React.Component {
                             <Input autoComplete='Room Code' onChange={(e) => this.userTyping('roomCode', e)} autoFocus id='room-code-input'></Input>
                         </FormControl>
                         <Box display="flex" justifyContent="center" alignItems="center">
-                            <Button type='submit' onClick={(e) => this.onClickEnter(e)} variant='contained' className={classes.submit}>Enter</Button>
+                            <Button id="enter" type='submit' onClick={(e) => this.onClickEnter(e)} variant='contained' className={classes.submit}>Enter</Button>
                         </Box>
                     </form>
                     :null

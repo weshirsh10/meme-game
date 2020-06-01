@@ -1,5 +1,6 @@
 import { firestore, storage } from 'firebase';
 import {randCaptionArray} from './randCaptionArray'
+// import admin from './admin';
 const firebase = require('firebase')
 
 class FirebaseService {
@@ -30,6 +31,7 @@ class FirebaseService {
             points: 0,
             imgPath: '',
             caption: '',
+            voters: '',
             voted: false,
             round: 1
 
@@ -84,6 +86,7 @@ class FirebaseService {
             imgPath: '',
             caption: '',
             turn: '',
+            voters: '',
             voted: false,
         }
 
@@ -156,6 +159,7 @@ class FirebaseService {
         let updateObj = {timer: false, state: _state}
 
         if(_state == 'VOTING'){
+            let player = this.getCurrentUser()
             firebase
             .firestore()
             .collection('rooms')
@@ -175,17 +179,24 @@ class FirebaseService {
             })
         }
         else if (_state == "UPLOAD2"){
+            let player = this.getCurrentUser()
             firebase
             .firestore()
             .collection('rooms')
             .doc(room)
             .get().then(resp => {
-                for(var player in resp.data().players){
-                    if(resp.data().players[player].turn == resp.data().turn && !resp.data().players[player].caption){
-                        updateObj["players." + player + ".caption"] = randCaptionArray[Math.floor(Math.random() * randCaptionArray.length)]
-                        break
-                    }
+                console.log("BEFORE iff Statement")
+
+                if(resp.data().players[player].turn == resp.data().turn && !resp.data().players[player].caption){
+                    console.log("IN iff Statement")
+                    updateObj["players." + player + ".caption"] = randCaptionArray[Math.floor(Math.random() * randCaptionArray.length)]
                 }
+                // for(var player in resp.data().players){
+                //     if(resp.data().players[player].turn == resp.data().turn && !resp.data().players[player].caption){
+                //         updateObj["players." + player + ".caption"] = randCaptionArray[Math.floor(Math.random() * randCaptionArray.length)]
+                //         break
+                //     }
+                // }
 
                 firebase.firestore()
                 .collection("rooms")
@@ -237,29 +248,20 @@ class FirebaseService {
         .collection('rooms')
         .doc(room)
         .get().then( resp => {
-            // if(!resp.data().players[player].caption){
-            //     vote = 0
-            // }
             let votes = resp.data().votes
-            // let points = resp.data().players[player]["points"]
             let playerNum = Object.keys(resp.data().players).length
-            // let roundScore = resp.data().players[player]["roundScore"]
-            // points = points + vote
-            // roundScore = roundScore + vote
             votes = votes + 1
 
             let pointsInc = firebase.firestore.FieldValue.increment(vote) 
             let roundInc = firebase.firestore.FieldValue.increment(vote)
 
-            console.log("Points Inc", pointsInc)
-            console.log("round Inc", roundInc)
-            console.log("Judge", judge)
-
+            let voterName = resp.data().players[voter].name
+            let voterList = resp.data().players[player].voters + "("+ voterName + ":+" + vote +')'
             firebase
             .firestore()
             .collection('rooms')
             .doc(room)
-            .update({votes: votes, ["players." + player + ".roundScore"]: roundInc,["players." + player + ".points"]: pointsInc, ["players." + voter + ".voted"]: true })
+            .update({votes: votes, ["players." + player + ".voters"]: voterList,["players." + player + ".roundScore"]: roundInc,["players." + player + ".points"]: pointsInc, ["players." + voter + ".voted"]: true })
         })
 
     }
@@ -298,6 +300,7 @@ class FirebaseService {
                 updateObj["players." + player + ".imgPath"] = ''
                 updateObj["players." + player + ".voted"] = false
                 updateObj["players." + player + ".roundScore"] = 0
+                updateObj["players." + player + ".voters"] = ''
             }
 
             firebase
@@ -374,6 +377,31 @@ class FirebaseService {
         var storageRef = firebase.storage().ref(filepath)
         return storageRef.getDownloadURL()
             
+
+    }
+
+    //ADMIN FUNCTIONS
+    clearEverything = () => {
+        firebase
+        .firestore()
+        .collection('users')
+        .get().then(db => {
+            db.docs.map( doc => {
+                console.log("Title",doc.id )
+                console.log("Doc Data", doc.data())
+                try{
+                    firebase.firestore().collection("rooms").doc(doc.data().room).delete()
+
+                }
+                catch(err){
+                    console.log(err)
+                }
+                if(doc.id != 'hold'){
+                    firebase.firestore().collection("users").doc(doc.id).delete()
+
+                }
+            })
+        })
 
     }
 }

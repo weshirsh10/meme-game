@@ -50,7 +50,7 @@ class LobbyComponent extends React.Component {
             <ThemeProvider theme={this.props.theme}>
             <div className={classes.main}>
                 <Typography component='h1' variant='h2'>Lobby</Typography>
-                <Typography component='h5'>Room: {this.props.room}</Typography>
+                <Typography component='h5' id='roomCode'>Room: {this.props.room}</Typography>
                 <List>
                     {
                         Object.values(this.props.players).map( (_player) => {
@@ -69,7 +69,7 @@ class LobbyComponent extends React.Component {
                 {
                     this.props.host ?
                         <div className={classes.startDiv}>
-                            <Button onClick={(e) => this.onClickStart(e)} type='submit' color='primary' className={classes.submit}>Start</Button>
+                            <Button id="startGame" onClick={(e) => this.onClickStart(e)} type='submit' color='primary' className={classes.submit}>Start</Button>
                             <Typography color='error' align='center' component='h4'>{this.state.errorText}</Typography>
                             <Typography color='secondary' align='center' component='h4'>*You are the host.<br/>Send the room code to players so they can join. Press start when all players have joined.</Typography>
                         </div>

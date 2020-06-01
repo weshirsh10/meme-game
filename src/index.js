@@ -5,6 +5,7 @@ import * as serviceWorker from './serviceWorker';
 import { Redirect, Route, BrowserRouter as Router } from 'react-router-dom';
 import LoginComponent from './login/login';
 import GameComponent from './game/game'
+import AdminComponent from './services/admin'
 import FirebaseService from './services/firebase'
 import 'react-image-lightbox/style.css'; // This only needs to be imported once in your app
 
@@ -23,6 +24,7 @@ const routing = (
       <Route exact path='/' render={()=> <Redirect to="/login"/>}></Route>
       <Route path="/login" component={ LoginComponent }></Route>
       <Route path="/game/:room/:name" component={ GameComponent }></Route>
+      <Route path='/admin' component={ AdminComponent }></Route>
     </div>
   </Router>
 );

@@ -46,7 +46,7 @@ class UploadComponent extends React.Component {
                         </div>
                     </label>
                     <input type='file' id="uploadButton" style={{display: 'none'}} onChange={this.handleFileChange} accept="image/*"/>
-                    <Button  color='primary' className={classes.submit} onClick={this.handleFileUpload}>Select</Button>
+                    <Button id="selectButton" color='primary' className={classes.submit} onClick={this.handleFileUpload}>Select</Button>
                 </div>
             </div>
             </ThemeProvider>

@@ -43,12 +43,6 @@ class CaptionComponent extends React.Component {
             }
         )
         
-
-        // await this.setState( async () => {
-        //     let user = await fbService.getCurrentUser()
-        //     console.log("USER", user)
-        //     return {currentUser: user}
-        // })
     }
 
     render() {
@@ -60,16 +54,15 @@ class CaptionComponent extends React.Component {
 
             <div className={classes.captionContainer}>
                 <div id='imgContainer' className={classes.downloadImg}>
-                    <img className={classes.imgScale} src={this.state.imgUrl}/>
+                    <img id="captionImg" className={classes.imgScale} src={this.state.imgUrl}/>
                 </div>  
                 <IconButton onClick={() => this.setState({ isOpen: true })}>
                     <FullscreenIcon color='secondary'/>
                 </IconButton>
-
                 {
                     this.submitState(classes)
                 }
-                <TimerComponent theme={this.props.theme} startTime={this.props.timestamp} nextState="VOTING" room={this.props.room}/>
+                <TimerComponent theme={this.props.theme} judge={false} startTime={this.props.timestamp} nextState="VOTING" room={this.props.room}/>
         {this.state.isOpen && (
           <Lightbox
             mainSrc={this.state.imgUrl}
@@ -84,7 +77,7 @@ class CaptionComponent extends React.Component {
 
     submitState = (classes) => {
         console.log("CurrentUser", this.state.currentUser)
-        if(this.props.players[fbService.getCurrentUser()].caption){
+        if(this.props.players[this.props.currentUser].caption){
             return (<div>
                 Waiting for Other players
             </div>)
@@ -96,7 +89,7 @@ class CaptionComponent extends React.Component {
                         <Input autoComplete='Caption' onChange={(e) => this.userTyping(e)} autoFocus id='caption-input'></Input>
                     </FormControl>
                     <Box display="flex" justifyContent="center" alignItems="center">
-                        <Button className={classes.submit} type='submit' onClick={(e) => this.onClickSubmit(e)} variant='contained' color='primary'>Submit</Button>
+                        <Button id="submit" className={classes.submit} type='submit' onClick={(e) => this.onClickSubmit(e)} variant='contained' color='primary'>Submit</Button>
                     </Box>
             </div>)
         }
