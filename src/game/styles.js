@@ -11,21 +11,25 @@ const styles = theme => ({
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      paddingBottom: '50vh',
-      // paddingTop: theme.spacing.unit * 8,
-
-
-
-      // marginLeft: theme.spacing.unit * 3,
-      // marginRight: theme.spacing.unit * 3,
       color: 'white',
-      backgroundColor: '#303030',
+      // backgroundColor: '#303030',
       [theme.breakpoints.up(400 + theme.spacing.unit * 3 * 2)]: {
         width: '100%',
-        heigh: '100%',
+        height: '100%',
         marginLeft: 'auto',
         marginRight: 'auto',
       },
+    },
+    headerButtons: {
+      color: '#9e9d9e',
+    },
+    headerContainer: {
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'space-between'
+
     },
     paper: {
       // marginTop: theme.spacing.unit * 8,
@@ -36,7 +40,7 @@ const styles = theme => ({
         width: "100%",
         height: "80%"
       },
-      backgroundColor: '#303030',
+      // backgroundColor: '#303030',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -45,6 +49,16 @@ const styles = theme => ({
     form: {
       width: '100%',
       marginTop: theme.spacing.unit,
+    },
+    reportSubmit: {
+      width: '40%',
+      backgroundColor: '#57C5C9',
+      color: '#303030',
+      margin: theme.spacing.unit * 3,
+      '&:hover': {
+        color: '#000000'
+      }
+
     },
     submit: {
         width: '40%',
@@ -81,8 +95,17 @@ const styles = theme => ({
       color: '#57C5C9',
 
     },
+    reportContainer: {
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center'
+
+    },
     formRoot: {
       color: 'white',
+      width: '90%',
       "& label.Mui-focused": {
         color: "white"
       },
@@ -104,7 +127,7 @@ const styles = theme => ({
       display: 'flex',
       width: "100%",
       height: "100%",
-      color: "#303030",
+      // color: "#303030",
       alignItems: "center",
       justifyContent: "center",
       paddingBottom: '20px'
@@ -174,6 +197,9 @@ const styles = theme => ({
     points: {
       margin: theme.spacing.unit * 3
     },
+    feedback: {
+      marginTop: theme.spacing.unit * 3
+    },
     startDiv: {
       display: 'flex',
       flexDirection: 'column',
@@ -189,6 +215,23 @@ const styles = theme => ({
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center"
+    },
+    caption: {
+      marginTop: theme.spacing.unit * 3
+
+    },
+    listMargin: {
+      margin: theme.spacing.unit * 3
+    },
+    roundHeader: {
+      display: "flex",
+      flexDirection: "row"
+    },
+    ruleContainer: {
+      width: '400px',
+      [theme.breakpoints.down('sm')]: {
+        width: "90%",
+      },
     }
   });
   

@@ -6,28 +6,43 @@ import { ThemeProvider } from '@material-ui/core/styles'
 import FirebaseService from '../services/firebase'
 
 const fbService = new FirebaseService();
+const firebase = require('firebase')
 
 class TimerComponent extends React.Component {
 
     constructor(){
         super();
         this.state = {
-            count: 90
+            count: 90,
+            fbCount: 90
         }
     }
 
     componentDidMount(){
 
+        firebase
+        .firestore()
+        .collection('timers')
+        .doc(this.props.room)
+        .onSnapshot( async res => {
+            if(res.data()){
+                await this.setState({fbCount: res.data().time})
+            }
+        })
+
         this.myInterval = setInterval( () => {
-            let currentTime = Math.floor(Date.now() / 1000)
+
+            this.setState({count: this.state.fbCount})
+
             if(this.state.count <= 0 && this.props.judge){
+                fbService.updateTimer("RESET", this.props.room)
                 fbService.updateRoomState(this.props.room, this.props.nextState)
             }
-            else{
-                this.setState( prevState => ({
-                    count: 90 - (currentTime - this.props.startTime)
-                }))
+            else if(this.state.count > 0 && this.props.judge){
+                fbService.updateTimer("DEC", this.props.room)
             }
+
+
            
         }, 1000)
     }

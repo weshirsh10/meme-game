@@ -9,7 +9,7 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import PublishIcon from '@material-ui/icons/Publish';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import uploadArrow from '../../../assets/svg/uploadArrow.svg'
 import { ThemeProvider } from '@material-ui/core/styles'
 
@@ -26,18 +26,18 @@ class Upload2Component extends React.Component {
         this.state = {
             imagePreview: '',
             raw: '',
-            selected: false
+            selected: false,
+            uploading:false,
         }
     }
 
 
     render() {
         const { classes } = this.props;
-        console.log("HELLLLLOOOO", this.props.currentUser)
         return(
             <ThemeProvider theme={this.props.theme}>
             <div className={classes.main}>
-        <Typography align='center' component='h2' variant='h4'>{this.props.caption}</Typography>
+            <Typography className={classes.caption} align='center' component='h2' variant='h5'>{this.props.caption}</Typography>
                 <div className={classes.uploadArea}>
                     <label htmlFor="uploadButton">
                         <div className={classes.uploadImg}>
@@ -48,7 +48,8 @@ class Upload2Component extends React.Component {
                         </div>
                     </label>
                     <input type='file' id="uploadButton" style={{display: 'none'}} onChange={this.handleFileChange} accept="image/*"/>
-                    <Button  color='primary' className={classes.submit} onClick={this.handleFileUpload}>Select</Button>
+                    <Button  color='primary' className={classes.submit} onClick={this.handleFileUpload}>Upload</Button>
+                    { this.state.uploading && this.state.raw ? <CircularProgress color='secondary'></CircularProgress>: null}
                     {
                         this.state.selected ? <Typography align='center'>Image Uploaded.<br/>Tap image to select a different picture.</Typography> : null
                     }
@@ -71,8 +72,12 @@ class Upload2Component extends React.Component {
 
     handleFileUpload = async e => {
         e.preventDefault();
-        fbService.uploadFile2(this.state.raw, this.props.room, this.props.currentUser)
-        this.setState({selected: true})
+        if(this.state.raw){
+            this.setState({uploading: true})
+        }
+        fbService.uploadFile2(this.state.raw, this.props.room, this.props.currentUser).then(resp => {
+            this.setState({selected: true, uploading: false})
+        })
 
     }
 

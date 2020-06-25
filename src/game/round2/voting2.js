@@ -7,6 +7,7 @@ import IconButton from '@material-ui/core/IconButton';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Button from '@material-ui/core/Button';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 import Lightbox from 'react-image-lightbox';
@@ -23,23 +24,31 @@ class Voting2Component extends React.Component {
             images: [{player: '', img: ''}],
             imgIndex: 0,
             isOpen: false,
-            caption: ''
+            caption: '',
+            dowloading: true,
         }
     }
 
     componentDidMount = async () => {
         let imgArray = []
+        const promises = []
         let voted = false
         let caption =''
         for(var player in this.props.players){
             if(this.props.players[player].imgPath && player != this.props.currentUser){
                 let filePath = await fbService.downloadFile(this.props.players[player].imgPath)
+                promises.push(filePath)
                 imgArray.push({player: player, img: filePath})
             }
             if(this.props.players[player].caption){
                 caption = this.props.players[player].caption
             }
         }
+
+        Promise.all(promises).then( ()=> {
+            this.setState({dowloading: false})
+        } )
+
         try{
             voted = this.props.players[this.props.currentUser].voted
         }
@@ -62,7 +71,8 @@ class Voting2Component extends React.Component {
                 <div id='imgContainer' className={classes.downloadImg}>
                     <img className={classes.imgScale} src={this.state.images[this.state.imgIndex].img}/>
                 </div>
-                <Typography align='center' component='h2' variant='h4'>{this.state.caption}</Typography>
+                { this.state.dowloading ? <CircularProgress color='secondary'/> : null}
+                <Typography className={classes.caption} align='center' component='h2' variant='h4'>{this.state.caption}</Typography>
                 <div className={classes.captionDisplay}>
                     <IconButton aria-label="previous" onClick={(e) => this.onClickPrev(e)}>
                         <ChevronLeftIcon color='secondary'/>

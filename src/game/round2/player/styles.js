@@ -5,7 +5,7 @@ const styles = theme => ({
     main: {
       width: '100%',
       height: '100%',
-      position: 'fixed',
+      // position: 'fixed',
       top: '0',
       left: '0',
       display: 'flex', // Fix IE 11 issue.
@@ -15,7 +15,7 @@ const styles = theme => ({
 
 
       // marginLeft: theme.spacing.unit * 3,
-      // marginRight: theme.spacing.unit * 3,
+      marginTop: theme.spacing.unit * 3,
       color: 'white',
       backgroundColor: '#303030',
       [theme.breakpoints.up(400 + theme.spacing.unit * 3 * 2)]: {
@@ -141,7 +141,9 @@ const styles = theme => ({
       justifyContent: 'space-between',
       margin: theme.spacing.unit * 3
     },
-    waitItem: {
+    caption: {
+      margin: theme.spacing.unit * 3
+
 
     }
   });

@@ -18,6 +18,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import { ThemeProvider } from '@material-ui/core/styles'
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import FirebaseService from '../services/firebase'
 import { ListItem } from '@material-ui/core';
@@ -31,7 +32,10 @@ class ScoringComponent extends React.Component {
         this.state = {
             scoretable:[],
             round: null,
-            images: []
+            images: [],
+            feedback: false,
+            feedbackText: '',
+            sending: false
         }
     }
 
@@ -55,26 +59,66 @@ class ScoringComponent extends React.Component {
     }
 
     render(){
-        window.scrollTo(0, 0)
+        // window.scrollTo(0, 0)
         const { classes } = this.props;
         return (
             <ThemeProvider theme={this.props.theme}>
             <div className={classes.startDiv}>
             <Typography component='h1' variant='h2'>Scores</Typography>
             { this.renderScoreCard(this.props.players)}
+            <Typography className={classes.feedback} color='secondary' align='center' >Have a suggestion?<br/>Idea for a another round?</Typography>
+            <Button className={classes.headerButtons} onClick={e => this.onClickSendFeedback(e)} type="contained"> Send Feedback</Button>
+            {
+                this.state.feedback ? 
+                <div className={classes.reportContainer}>
+                    <FormControl className={classes.formRoot}required fullWidth margin='normal'>
+                        <InputLabel className={classes.inputLabel} htmlFor='feedback-input'>Thank you for your feedback!</InputLabel>
+                        <Input multiline='true' autoComplete='Feedback' onChange={(e) => this.userTyping(e)} autoFocus id='feedback-input'></Input>
+                    </FormControl> 
+                    <div className={classes.buttonContainer}>
+                        <Button className={classes.reportSubmit} onClick={(e) => this.onClickCancel(e)} type='submit' variant='contained'>Cancel</Button>
+                        <Button className={classes.reportSubmit} onClick={(e) => this.onClickSend(e)} type='submit' variant='contained'>Send</Button>
+                    </div>
+                
+                </div>: null
+            }
+            {this.state.sending ? <CircularProgress color='secondary'/> : null}
             {
                 this.state.round == 2? this.renderImages() : null
             }
             {
                 this.props.judge ?
                 <Button id="continueButton" className={classes.submit} type="contained" onClick={e => this.onClickContinue(e)}>Continue</Button> :
-                <Typography style={{margin: '20px'}} align='center' component='h2' color='secondary'>Waiting for judge to continue.</Typography>
+                <Typography style={{margin: '20px'}} align='center' component='h2' variant='h4' color='secondary'>Waiting for judge to continue.</Typography>
             }
+            
             </div>
             </ThemeProvider>
 
         )
 
+    }
+
+    onClickSendFeedback = () => {
+        this.setState({feedback: !this.state.feedback})
+    }
+
+    onClickCancel = (e) => {
+        this.setState({feedback: false, feedbackText: ''})
+    }
+
+    onClickSend = (e) => {
+        e.preventDefault();
+        this.setState({sending: true})
+        fbService.sendFeedback(this.state.feedbackText, this.props.room)
+        .then( (res) => {
+            this.setState({feedbackText: '', feedback: false, sending: false})
+        })
+
+    }
+
+    userTyping = (e) => {
+        this.setState({feedbackText: e.target.value})
     }
 
     onClickContinue = () => {

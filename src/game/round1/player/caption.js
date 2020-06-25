@@ -62,7 +62,7 @@ class CaptionComponent extends React.Component {
                 {
                     this.submitState(classes)
                 }
-                <TimerComponent theme={this.props.theme} judge={false} startTime={this.props.timestamp} nextState="VOTING" room={this.props.room}/>
+                <TimerComponent theme={this.props.theme} judge={false} startTime={this.props.timer} nextState="VOTING" room={this.props.room}/>
         {this.state.isOpen && (
           <Lightbox
             mainSrc={this.state.imgUrl}
@@ -83,15 +83,17 @@ class CaptionComponent extends React.Component {
             </div>)
         }
         else{
-            return(<div className={classes.formContainer}>
-                    <FormControl className={classes.formRoot}required fullWidth margin='normal'>
-                        <InputLabel className={classes.inputLabel} htmlFor='caption-input'>Enter Caption</InputLabel>
-                        <Input autoComplete='Caption' onChange={(e) => this.userTyping(e)} autoFocus id='caption-input'></Input>
+            return(
+            <div className={classes.formContainer}>
+                    <FormControl className={this.props.classes.formRoot} required fullWidth margin='normal'>
+                        <InputLabel color='primary' className={classes.inputLabel} htmlFor='caption-input'>Enter Caption</InputLabel>
+                        <Input  color='primary' autoComplete='Caption' onChange={(e) => this.userTyping(e)} autoFocus id='caption-input'></Input>
                     </FormControl>
                     <Box display="flex" justifyContent="center" alignItems="center">
                         <Button id="submit" className={classes.submit} type='submit' onClick={(e) => this.onClickSubmit(e)} variant='contained' color='primary'>Submit</Button>
                     </Box>
-            </div>)
+            </div>
+            )
         }
     }
 

@@ -9,6 +9,7 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import UploadComponent from './round1/judge/upload'
 import WaitUploadComponent from './round1/player/waitUpload'
@@ -17,6 +18,8 @@ import JudgeWaitingComponent from './round1/judge/judgeWait'
 import VotingComponent from './round1/voting'
 import ScoringComponent from './scoring'
 import LobbyComponent from './lobby'
+import Round1Component from './round1/round1'
+import Round2Component from './round2/round2'
 import Caption2Component from './round2/judge/caption2'
 import Upload2Component from './round2/player/upload2'
 import JudgeWaiting2Component from './round2/judge/judgeWait2'
@@ -53,6 +56,18 @@ const theme = createMuiTheme({
             fontSize: 20,
             fontFamily: ['Squada One']
         }
+    },
+    overrides: {
+        MuiInputBase: {
+            root: {
+                color: '#ffffff',
+                '&$focused': {
+                    color: '#ffffff'
+                }
+            },
+            
+        }
+
     }
 })
 
@@ -61,6 +76,10 @@ class GameComponent extends React.Component {
     constructor() {
         super();
         this.state = {
+            report: false,
+            exit: false,
+            sending: false,
+            reportText: '',
             votes: 0,
             host: '',
             room: '',
@@ -73,7 +92,7 @@ class GameComponent extends React.Component {
             currentUser: '',
             turn: 1,
             timer: false,
-            roundTimestamp: 0,
+            roundTimestamp: 90,
             playerPoints: 10,
             spectating: false,
             }
@@ -95,49 +114,59 @@ class GameComponent extends React.Component {
             }
         })
 
-        await firebase
-        .firestore()
-        .collection('rooms')
-        .doc(this.state.room)
-        .onSnapshot( async res => {
-            let _players = res.data().players
-            let _host = res.data().host
-            let _turn = res.data().turn
-            let _gameState = res.data().state
-            let _roundTimestamp = res.data().roundTimestamp
-            let _timer = res.data().timer
-            let _round = res.data().round
-            let _judge = ''
-            let _user = ''
-            let _judgeImg = ''
-            let _judgeCaption = ''
-            let _playerPoints = ((10 - res.data().playerCount) + 1)*10
-
-            for(var player in _players){
-                if(_players[player].turn == _turn){
-                    _user = player
-                    _judge = _players[player].name
-                    _judgeImg = _players[player].imgPath
-                    _judgeCaption = _players[player].caption
+        if(this.state.room){
+            await firebase
+            .firestore()
+            .collection('rooms')
+            .doc(this.state.room)
+            .onSnapshot( async res => {
+                if(!res.exists){
+                    console.log("NO room update")
+                    this.props.history.push('/login')
+    
                 }
-            }
-            await this.setState( {
-                turn: _turn,
-                players: _players,
-                host: _host,
-                judge: _judge,
-                user: _user,
-                judgeImg: _judgeImg,
-                judgeCaption: _judgeCaption,
-                gameState: _gameState,
-                roundTimestamp: _roundTimestamp,
-                timer: _timer,
-                round: _round,
-                playerPoints: _playerPoints
-            } )
-
-
-        })   
+                else{
+                    let _players = res.data().players
+                    let _host = res.data().host
+                    let _turn = res.data().turn
+                    let _gameState = res.data().state
+                    let _roundTimestamp = res.data().roundTimestamp
+                    let _timer = res.data().timer
+                    let _round = res.data().round
+                    let _judge = ''
+                    let _user = ''
+                    let _judgeImg = ''
+                    let _judgeCaption = ''
+                    let _playerPoints = ((10 - res.data().playerCount) + 1)*10
+    
+                    for(var player in _players){
+                        if(_players[player].turn == _turn){
+                            _user = player
+                            _judge = _players[player].name
+                            _judgeImg = _players[player].imgPath
+                            _judgeCaption = _players[player].caption
+                        }
+                    }
+                    await this.setState( {
+                    turn: _turn,
+                    players: _players,
+                    host: _host,
+                    judge: _judge,
+                    user: _user,
+                    judgeImg: _judgeImg,
+                    judgeCaption: _judgeCaption,
+                    gameState: _gameState,
+                    roundTimestamp: _roundTimestamp,
+                    timer: _timer,
+                    round: _round,
+                    playerPoints: _playerPoints
+                    } )
+                }
+    
+    
+            })
+        }
+     
         
     }
     
@@ -146,15 +175,101 @@ class GameComponent extends React.Component {
         const { classes } = this.props;
         console.log("GameState", this.state)
         return(
+            <ThemeProvider theme={theme}>
             <div className={classes.main} >
+                <div className={classes.headerContainer}>
+                    <Button onClick={(e) => this.onClickReport(e)}className={classes.headerButtons} >Report Issue</Button>
+                    <Button onClick={(e) => this.onClickExitGame(e)} className={classes.headerButtons}>End Game</Button>
+                </div>
                 <div className={classes.paper}>
                     {
                         this.stateManager()
                     }
                 </div>
+                {
+                    this.state.report ? 
+                    <div className={classes.reportContainer}>
+                        <FormControl className={classes.formRoot}required fullWidth margin='normal'>
+                            <InputLabel className={classes.inputLabel} htmlFor='caption-input'>Problem Description</InputLabel>
+                            <Input multiline='true' autoComplete='Caption' onChange={(e) => this.userTyping(e)} autoFocus id='caption-input'></Input>
+                        </FormControl> 
+                        <div className={classes.buttonContainer}>
+                            <Button className={classes.reportSubmit} onClick={(e) => this.onClickCancel(e)} type='submit' variant='contained'>Cancel</Button>
+                            <Button className={classes.reportSubmit} onClick={(e) => this.onClickSend(e)} type='submit' variant='contained'>Send</Button>
+                        </div>
+                    
+                    </div>
+                    : null
+                }
+                {
+                    this.state.exit ? 
+                    <div>
+                        <Typography color='error'>This will end the game for all players.</Typography>
+                        <div className={classes.buttonContainer}>
+                            <Button className={classes.reportSubmit} onClick={(e) => this.onClickCancel(e)} type='submit' variant='contained'>Cancel</Button>
+                            <Button className={classes.reportSubmit} onClick={(e) => this.onClickExit(e)} type='submit' variant='contained'>End</Button>
+                        </div>
+                    </div> : null
+                }
+                {
+                    this.state.sending ? <CircularProgress color='secondary'/> : null
+                }
             </div>
+            </ThemeProvider>
         )
     }
+
+    userTyping = (e) => {
+        this.setState({reportText: e.target.value})
+    }
+
+    onClickCancel = (e) => {
+        this.setState({report: false, reportText: '', exit: false})
+    }
+
+    onClickSend = (e) => {
+        e.preventDefault();
+        this.setState({sending: true})
+        fbService.sendReport(this.state)
+        .then( (res) => {
+            this.setState({reportText: '', report: false})
+            this.setState({sending: false})
+            console.log("Send Report:", res)
+        })
+
+    }
+
+    onClickReport = (e) => {
+        e.preventDefault();
+
+        this.setState({report: !this.state.report, exit: false})
+
+        console.log("report", this.state.report)
+    }
+
+    onClickExitGame = (e) => {
+        e.preventDefault();
+        this.setState({exit: !this.state.exit, report: false})
+    }
+
+    onClickExit = (e) => {
+        e.preventDefault();
+        this.setState({sending: true})
+        fbService.exitGame(this.state.players, this.state.room)
+        .then( res => {
+            this.setState({sending: false})
+            console.log("RES", res)
+            // if(res.data.success){
+            //     this.props.history.push('/login')
+            // }
+        })
+    }
+    
+    onClickJoin = (e) => {
+        e.preventDefault();
+
+        this.setState({hostGame: false, joinRoom: true})
+    } 
 
     stateManager = () => {
         if(this.state.round == 1){
@@ -167,6 +282,13 @@ class GameComponent extends React.Component {
                         players={this.state.players} 
                         host={true} 
                         room={this.state.room} ></LobbyComponent>
+                    case "ROUND1":
+                        return <Round1Component 
+                        room={this.state.room} 
+                        players={this.state.players} 
+                        host={true} 
+                        hostName={this.state.judge} 
+                        theme={theme}></Round1Component>
 
                     case 'UPLOAD':
                        return <UploadComponent 
@@ -175,7 +297,7 @@ class GameComponent extends React.Component {
                        user={this.state.user}></UploadComponent>
 
                     case 'CAPTION':
-                        fbService.updateRoundTimestamp(this.state.room, this.state.timer)
+                        fbService.toggleTimer(this.state.room, true)
                         let captionCount = 0
                         for(var _player in this.state.players){
                             if(this.state.players[_player].caption){
@@ -183,13 +305,14 @@ class GameComponent extends React.Component {
                             }
                         }
                         if(captionCount == Object.keys(this.state.players).length -1){
+                            fbService.updateTimer("RESET", this.state.room)
                             fbService.updateRoomState(this.state.room, "VOTING")
                         }
     
                         return <JudgeWaitingComponent 
                         theme={theme} 
                         room={this.state.room} 
-                        timestamp={this.state.roundTimestamp} 
+                        timer={this.state.timer} 
                         user={this.state.user} 
                         players={this.state.players}></JudgeWaitingComponent>
     
@@ -223,18 +346,26 @@ class GameComponent extends React.Component {
                         host={false} 
                         room={this.state.room} 
                         user={this.state.user}></LobbyComponent>
+                    case "ROUND1":
+                        return <Round1Component 
+                        room={this.state.room} 
+                        players={this.state.players} 
+                        host={false} 
+                        hostName={this.state.judge} 
+                        theme={theme}></Round1Component>
 
                     case 'UPLOAD':
                         return <WaitUploadComponent 
+                        judge={this.state.judge}
                         theme={theme}></WaitUploadComponent>
 
                     case 'CAPTION':
                         return <CaptionComponent 
                         theme={theme} 
                         currentUser={this.state.currentUser} 
-                        timestamp={this.state.roundTimestamp} 
+                        timer={this.state.timer} 
                         players={this.state.players} 
-                        room={this.state.room} 
+                        room={this.state.room}
                         filepath={this.state.judgeImg}></CaptionComponent>
 
                     case 'VOTING':
@@ -261,11 +392,19 @@ class GameComponent extends React.Component {
         else if(this.state.round == 2){
             if(this.state.name == this.state.judge){
                 switch(this.state.gameState){
+                    case "ROUND2":
+                        return <Round2Component 
+                        room={this.state.room} 
+                        players={this.state.players} 
+                        host={true} 
+                        hostName={this.state.judge} 
+                        theme={theme}></Round2Component>
+
                     case "CAPTION2":
-                        fbService.updateRoundTimestamp(this.state.room, this.state.timer)
+                        fbService.toggleTimer(this.state.room, true)
                         return <Caption2Component 
                         theme={theme} 
-                        timestamp={this.state.roundTimestamp} 
+                        timer={this.state.timer} 
                         room={this.state.room}></Caption2Component>
 
                     case "UPLOAD2":
@@ -278,10 +417,10 @@ class GameComponent extends React.Component {
                         if(imgCount == Object.keys(this.state.players).length -1){
                             fbService.updateRoomState(this.state.room, "VOTING2")
                         }
-                        
+
                         return <JudgeWaiting2Component 
                         theme={theme} room={this.state.room} 
-                        timestamp={this.state.roundTimestamp} 
+                        timer={this.state.timer} 
                         user={this.state.user} 
                         players={this.state.players}></JudgeWaiting2Component>
 
@@ -305,10 +444,19 @@ class GameComponent extends React.Component {
                 }
             }else{
                 switch(this.state.gameState){
+                    case "ROUND2":
+                        return <Round2Component 
+                        room={this.state.room} 
+                        players={this.state.players} 
+                        host={false} 
+                        hostName={this.state.judge} 
+                        theme={theme}></Round2Component>
+
                     case "CAPTION2":
                         return <WaitUploadComponent 
                         theme={theme} 
-                        timestamp={this.state.roundTimestamp} 
+                        judge={this.state.judge}
+                        timer={this.state.timer} 
                         round={this.state.round} 
                         room={this.state.room}></WaitUploadComponent>
 

@@ -3,6 +3,7 @@ import { grey } from "@material-ui/core/colors";
 const styles = theme => ({
     main: {
       width: 'auto',
+      // height: '100%',
       display: 'block', // Fix IE 11 issue.
       // marginLeft: theme.spacing.unit * 3,
       // marginRight: theme.spacing.unit * 3,
@@ -13,6 +14,10 @@ const styles = theme => ({
         marginLeft: 'auto',
         marginRight: 'auto',
       },
+    },
+    logoImg: {
+      width: '100%',
+      height: '360px'
     },
     paper: {
       marginTop: theme.spacing.unit * 8,
@@ -57,7 +62,6 @@ const styles = theme => ({
         width: "100%",
         display: 'flex',
         flexDirection: 'row',
-        border: 1
     },
     errorText: {
       color: 'red',
@@ -89,8 +93,6 @@ const styles = theme => ({
     pageContainer: {
       display: 'flex',
       width: "100%",
-      height: "100%",
-      color: "#303030",
       alignItems: "center",
       justifyContent: "center",
       paddingBottom: '20px'

@@ -23,6 +23,7 @@ class WaitUploadComponent extends React.Component {
             <div className={classes.waitImgContainer}>
                 <img className={classes.imgScale} src={judgeWaiting}/>
             </div>
+        <Typography color='secondary'>{this.props.judge} is the judge.</Typography>
             {
                 this.props.round == 2 ? <TimerComponent theme={this.props.theme} startTime={this.props.timestamp} nextState="UPLOAD2" room={this.props.room}/> : null
 

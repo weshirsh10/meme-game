@@ -1,7 +1,7 @@
 import { firestore, storage } from 'firebase';
 import {randCaptionArray} from './randCaptionArray'
-// import admin from './admin';
 const firebase = require('firebase')
+require("firebase/functions");
 
 class FirebaseService {
 
@@ -16,12 +16,14 @@ class FirebaseService {
             appId: "1:525177692316:web:0d189eb0b6fefc4b470d59",
             measurementId: "G-9RQNL95G1K"
         });
+
+        firebase.analytics()
     }
 
     createRoom = async (hostName) => {
         let code = Math.random().toString(36).slice(2).substr(0,4).toUpperCase()
         
-        let user = await this.createUser(hostName, code)
+        let user = await this.createUser(hostName, code, true)
 
         let playerObj = {}
         playerObj[user] = {
@@ -32,9 +34,7 @@ class FirebaseService {
             imgPath: '',
             caption: '',
             voters: '',
-            voted: false,
-            round: 1
-
+            voted: false
         }
 
         let roomObj = {
@@ -47,6 +47,17 @@ class FirebaseService {
             playerCount: 1,
             round: 1
         }
+        //create room timer
+        let timerObj = {
+            time: 90,
+        }
+
+        firebase.firestore()
+        .collection('timers')
+        .doc(code)
+        .set(timerObj)
+
+        firebase.analytics().logEvent("New Room", {room: code})
 
         return [firebase
         .firestore()
@@ -72,7 +83,7 @@ class FirebaseService {
     joinRoom = async (playerName, roomCode) => {
         roomCode =roomCode.toUpperCase()
 
-        let user = await this.createUser(playerName, roomCode)
+        let user = await this.createUser(playerName, roomCode, false)
         await this.updatePlayerCount(roomCode)
         //TODO
         //ADD Firebase user ID to player obj
@@ -89,6 +100,8 @@ class FirebaseService {
             voters: '',
             voted: false,
         }
+
+        firebase.analytics().logEvent("Join Room", {room: roomCode})
 
         return firebase
         .firestore()
@@ -123,11 +136,12 @@ class FirebaseService {
         return firebase.auth().currentUser.uid
     }
 
-    createUser = async (name, roomCode) => {
+    createUser = async (name, roomCode, host) => {
 
         let userObj = {
             name: name,
-            room: roomCode
+            room: roomCode,
+            host: host
         }
     
         let user = await firebase.auth().signInAnonymously()
@@ -154,9 +168,32 @@ class FirebaseService {
         return firebase.auth()
     }
 
+    isJoinValid = async (name, room) => {
+        console.log("ROOMCODE", room)
+
+        return firebase.firestore().collection('rooms').doc(room.toUpperCase()).get()
+        .then( doc => {
+            console.log(doc.data())
+            if(doc.exists){
+                if(doc.data().state == "LOBBY"){
+                    this.joinRoom(name, room)
+                    return ""
+                 }
+                else{
+                    return "Game has already Started"
+                }
+            }
+            else{
+                return "Invalid Room Code"
+            }
+           
+        })
+
+    }
+
     updateRoomState = (room, _state) => {
         console.log(_state)
-        let updateObj = {timer: false, state: _state}
+        let updateObj = {state: _state}
 
         if(_state == 'VOTING'){
             let player = this.getCurrentUser()
@@ -225,6 +262,8 @@ class FirebaseService {
         }
 
         this.updateRoomState(room, "UPLOAD")
+        firebase.analytics().logEvent("Game Started", {room: room})
+
 
     }
 
@@ -280,11 +319,14 @@ class FirebaseService {
                 turn = 1 
                 round = round + 1
                 if(round == 2){
-                    newState = "CAPTION2"
+                    newState = "ROUND2"
+                    firebase.analytics().logEvent("End Round1", {players: Object.keys(players).length})
                 }
                 else if(round == 3){
                     newState = "UPLOAD"
                     round = 1
+                    firebase.analytics().logEvent("End Round2", {players: Object.keys(players).length})
+
                 }
             }
 
@@ -292,7 +334,8 @@ class FirebaseService {
                 turn: turn,
                 state: newState,
                 votes: 0,
-                round: round
+                round: round,
+                roundTimestamp: 90
             }
 
             for(var player in players){
@@ -312,19 +355,31 @@ class FirebaseService {
         })
     }
 
-    updateRoundTimestamp = (room, timer) => {
-        if(!timer){
-            let timestamp = Math.floor(Date.now() / 1000)
-            console.log(timestamp)
+    toggleTimer = (room, timerBool) => {
+        // let timestamp = firebase.firestore.FieldValue.increment(-1)
+        firebase
+        .firestore()
+        .collection('rooms')
+        .doc(room)
+        .update({
+            timer: timerBool
+        })
+    }
 
-            firebase
-            .firestore()
-            .collection('rooms')
+    updateTimer = (command, room) => {
+        if(command == "RESET"){
+            firebase.firestore()
+            .collection('timers')
             .doc(room)
-            .update({
-                timer: true,
-                roundTimestamp: timestamp
-            })
+            .update({time: 90})
+        }
+        else if(command == "DEC"){
+            const dec = firebase.firestore.FieldValue.increment(-1)
+
+            firebase.firestore()
+            .collection('timers')
+            .doc(room)
+            .update({time: dec})
         }
     }
 
@@ -354,12 +409,15 @@ class FirebaseService {
                 ["players." + name +".imgPath"]: path
             })
         } )
+        firebase.analytics().logEvent("File Upload 1", {room: room})
+
     }
 
     uploadFile2 = (file, room, name) => {
         let path = room + "/" + name + "/round2"
+        firebase.analytics().logEvent("File Upload 2", {room: room})
         var storageRef = firebase.storage().ref(path)
-        storageRef.put(file).then( (snapshot) => {
+        return storageRef.put(file).then( (snapshot) => {
             //update image file path
             firebase
             .firestore()
@@ -403,6 +461,23 @@ class FirebaseService {
             })
         })
 
+    }
+
+    exitGame = async (players, room) => {
+       var exitGame = firebase.functions().httpsCallable('exitGame2')
+       firebase.analytics().logEvent("Exit game", {room: room})
+       return exitGame({players: players, room: room})
+    }
+
+    sendReport = async (gameState) => {
+        firebase.analytics().logEvent("Report Sent", {gamestate: gameState})
+        var sendReport = firebase.functions().httpsCallable('sendReport')
+        return sendReport({gameState: gameState})
+    }
+
+    sendFeedback = (feedback, room) => {
+        firebase.analytics().logEvent("Feedback", {feedback: feedback, room: room})
+        return firebase.firestore().collection('feedback').doc().set({room: room, feedback: feedback})
     }
 }
 

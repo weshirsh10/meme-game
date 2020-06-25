@@ -10,6 +10,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import PublishIcon from '@material-ui/icons/Publish';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import uploadArrow from '../../../assets/svg/uploadArrow.svg'
 import { ThemeProvider } from '@material-ui/core/styles'
 
@@ -25,7 +26,8 @@ class UploadComponent extends React.Component {
         super();
         this.state = {
             imagePreview: '',
-            raw: ''
+            raw: '',
+            uploading: false
         }
     }
 
@@ -46,7 +48,8 @@ class UploadComponent extends React.Component {
                         </div>
                     </label>
                     <input type='file' id="uploadButton" style={{display: 'none'}} onChange={this.handleFileChange} accept="image/*"/>
-                    <Button id="selectButton" color='primary' className={classes.submit} onClick={this.handleFileUpload}>Select</Button>
+                    <Button id="selectButton" color='primary' className={classes.submit} onClick={this.handleFileUpload}>Upload</Button>
+                    {this.state.uploading ? <CircularProgress color='secondary'/> : null}
                 </div>
             </div>
             </ThemeProvider>
@@ -66,6 +69,7 @@ class UploadComponent extends React.Component {
 
     handleFileUpload = async e => {
         e.preventDefault();
+        this.setState({uploading: true})
         fbService.uploadFile(this.state.raw, this.props.room, this.props.user)
 
     }

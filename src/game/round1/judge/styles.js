@@ -5,7 +5,6 @@ const styles = theme => ({
     main: {
       width: '100%',
       height: '100%',
-      position: 'fixed',
       top: '0',
       left: '0',
       display: 'flex', // Fix IE 11 issue.
@@ -17,7 +16,7 @@ const styles = theme => ({
       // marginLeft: theme.spacing.unit * 3,
       // marginRight: theme.spacing.unit * 3,
       color: 'white',
-      backgroundColor: '#303030',
+      // backgroundColor: '#303030',
       [theme.breakpoints.up(400 + theme.spacing.unit * 3 * 2)]: {
         width: '100%',
         heigh: '100%',
@@ -34,7 +33,7 @@ const styles = theme => ({
         width: "100%",
         height: "80%"
       },
-      backgroundColor: '#303030',
+      // backgroundColor: '#303030',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -101,7 +100,7 @@ const styles = theme => ({
       display: 'flex',
       width: "100%",
       height: "100%",
-      color: "#303030",
+      // color: "#303030",
       alignItems: "center",
       justifyContent: "center",
       paddingBottom: '20px'

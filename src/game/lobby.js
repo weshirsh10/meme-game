@@ -83,11 +83,11 @@ class LobbyComponent extends React.Component {
 
     onClickStart = (e) => {
         //make sure theres more than 2 people in room
-        if(Object.keys(this.props.players).length > 2){
-            fbService.startGame(this.props.room, this.props.players)
+        if(Object.keys(this.props.players).length > 3){
+            fbService.updateRoomState(this.props.room, "ROUND1")
         }
         else{
-            this.setState({errorText: "At least 3 players are needed to start."})
+            this.setState({errorText: "At least 4 players are needed to start."})
         }
     }
 

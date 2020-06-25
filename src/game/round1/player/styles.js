@@ -76,14 +76,14 @@ const styles = theme => ({
         borderBottomColor: "white"
       },
       "& .MuiInput-underline:after": {
-        borderBottomColor: "white"
+        borderBottomColor: "purple"
       },
       "& .MuiInput-input": {
-        color: 'white'
+        color: 'white' 
       },
       width: '400px',
       [theme.breakpoints.down('sm')]: {
-        width: "90%",
+        width: "100%",
       },
 
     },

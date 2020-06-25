@@ -17,14 +17,15 @@ console.log("PROCESS projectid", process.env.MEME_PROJECT_ID)
 //initialize FB connection
  const firebase = new FirebaseService();
  firebase.initialize();
+ 
 
 const routing = (
   <Router>
     <div id='routing-container'>
-      <Route exact path='/' render={()=> <Redirect to="/login"/>}></Route>
+      {/* <Route exact path='/' render={()=> <Redirect to="/login"/>}></Route> */}
       <Route path="/login" component={ LoginComponent }></Route>
       <Route path="/game/:room/:name" component={ GameComponent }></Route>
-      <Route path='/admin' component={ AdminComponent }></Route>
+      <Route render={()=> <Redirect to="/login"/>}></Route>
     </div>
   </Router>
 );
