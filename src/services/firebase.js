@@ -81,7 +81,7 @@ class FirebaseService {
     }
 
     joinRoom = async (playerName, roomCode) => {
-        roomCode =roomCode.toUpperCase()
+        roomCode = roomCode.toUpperCase()
 
         let user = await this.createUser(playerName, roomCode, false)
         await this.updatePlayerCount(roomCode)
@@ -143,16 +143,32 @@ class FirebaseService {
             room: roomCode,
             host: host
         }
-    
-        let user = await firebase.auth().signInAnonymously()
- 
-        firebase
-        .firestore()
-        .collection("users")
-        .doc(user.user.uid)
-        .set(userObj)
 
-        return user.user.uid
+        return await firebase.auth().signInAnonymously()
+        .then( user =>{
+            firebase
+            .firestore()
+            .collection("users")
+            .doc(user.user.uid)
+            .set(userObj)
+            return user.user.uid
+        })
+        .catch(err => {
+            console.log("Error AUth", err)
+            return "error"
+        })
+    
+        // let user = await firebase.auth().signInAnonymously()
+        //         .catch(err => {
+        //             console.log("AuthErr", err)
+        //         })
+        // firebase
+        // .firestore()
+        // .collection("users")
+        // .doc(user.user.uid)
+        // .set(userObj)
+
+        // return user.user.uid
 
     }
     
@@ -169,11 +185,9 @@ class FirebaseService {
     }
 
     isJoinValid = async (name, room) => {
-        console.log("ROOMCODE", room)
 
         return firebase.firestore().collection('rooms').doc(room.toUpperCase()).get()
         .then( doc => {
-            console.log(doc.data())
             if(doc.exists){
                 if(doc.data().state == "LOBBY"){
                     this.joinRoom(name, room)
@@ -192,7 +206,6 @@ class FirebaseService {
     }
 
     updateRoomState = (room, _state) => {
-        console.log(_state)
         let updateObj = {state: _state}
 
         if(_state == 'VOTING'){
@@ -222,19 +235,9 @@ class FirebaseService {
             .collection('rooms')
             .doc(room)
             .get().then(resp => {
-                console.log("BEFORE iff Statement")
-
                 if(resp.data().players[player].turn == resp.data().turn && !resp.data().players[player].caption){
-                    console.log("IN iff Statement")
                     updateObj["players." + player + ".caption"] = randCaptionArray[Math.floor(Math.random() * randCaptionArray.length)]
                 }
-                // for(var player in resp.data().players){
-                //     if(resp.data().players[player].turn == resp.data().turn && !resp.data().players[player].caption){
-                //         updateObj["players." + player + ".caption"] = randCaptionArray[Math.floor(Math.random() * randCaptionArray.length)]
-                //         break
-                //     }
-                // }
-
                 firebase.firestore()
                 .collection("rooms")
                  .doc(room)
@@ -249,6 +252,14 @@ class FirebaseService {
         }
 
         
+    }
+
+    keepPlaying = (room) => {
+        firebase.analytics().logEvent("Keep Playing", {room: room})
+        firebase.firestore()
+        .collection('rooms')
+        .doc(room)
+        .update({round: 1, state: "UPLOAD"})
     }
 
     startGame = (room, players) => {
@@ -323,8 +334,7 @@ class FirebaseService {
                     firebase.analytics().logEvent("End Round1", {players: Object.keys(players).length})
                 }
                 else if(round == 3){
-                    newState = "UPLOAD"
-                    round = 1
+                    newState = "ENDGAME"
                     firebase.analytics().logEvent("End Round2", {players: Object.keys(players).length})
 
                 }
@@ -445,8 +455,6 @@ class FirebaseService {
         .collection('users')
         .get().then(db => {
             db.docs.map( doc => {
-                console.log("Title",doc.id )
-                console.log("Doc Data", doc.data())
                 try{
                     firebase.firestore().collection("rooms").doc(doc.data().room).delete()
 

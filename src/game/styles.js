@@ -99,9 +99,29 @@ const styles = theme => ({
       width: '100%',
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'center',
       alignItems: 'center'
 
+    },
+    feedbackContainer: {
+      width: '90%',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      [theme.breakpoints.down('sm')]: {
+        width: "100%",
+      },
+      
+
+    },
+    starRow: {
+      display: 'flex',
+      flexDirection: 'row'
+    },
+    roundWinner:{
+      display: 'flex',
+      alignItems: 'center',
+      flexDirection: 'row',
     },
     formRoot: {
       color: 'white',
@@ -210,6 +230,25 @@ const styles = theme => ({
         width: "90%",
       },
     },
+    endGameDiv: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '90%',
+      [theme.breakpoints.down('sm')]: {
+        width: "90%",
+      },
+    },
+    dividerLine: {
+      width: '90%',
+      borderColor: '#9e9d9e'
+      // border: 'solid',
+      // borderTop: '15px',
+      // borderBottom: 'none',
+      // borderLeft: 'none',
+      // borderRight: 'none'
+    },
     votesReceived: {
       display: "flex",
       flexDirection: "row",
@@ -232,6 +271,9 @@ const styles = theme => ({
       [theme.breakpoints.down('sm')]: {
         width: "90%",
       },
+    },
+    endGameLogo:{
+      height: '20%'
     }
   });
   

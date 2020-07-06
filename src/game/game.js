@@ -24,6 +24,7 @@ import Caption2Component from './round2/judge/caption2'
 import Upload2Component from './round2/player/upload2'
 import JudgeWaiting2Component from './round2/judge/judgeWait2'
 import Voting2Component from './round2/voting2'
+import EndGameComponent from './endGame'
 import FirebaseService from '../services/firebase'
 
 const firebase = require('firebase')
@@ -96,9 +97,23 @@ class GameComponent extends React.Component {
             playerPoints: 10,
             spectating: false,
             }
+
+        this.endGameButton = React.createRef()
+
     }
 
     componentDidMount = async () => {
+
+        // fbService.getUserStatus().onAuthStateChanged(user =>{
+        //     if(!user){
+        //         console.log("no user")
+        //         this.props.history.push('/login')
+        //     }
+        //     else{
+        //         console.log(user)
+        //         console.log("we got a user")
+        //     }
+        // })
 
 
         await this.setState((state, props) => {
@@ -109,7 +124,6 @@ class GameComponent extends React.Component {
 
         await fbService.getUserStatus().onAuthStateChanged((user) => {
             if(user){
-                console.log("USER", user.uid)
                 return this.setState({currentUser: user.uid})
             }
         })
@@ -121,9 +135,14 @@ class GameComponent extends React.Component {
             .doc(this.state.room)
             .onSnapshot( async res => {
                 if(!res.exists){
-                    console.log("NO room update")
-                    this.props.history.push('/login')
-    
+                    let user = fbService.getCurrentUser()
+                    if(!user.uid){
+                        console.log("NO USER")
+                        this.props.history.push('/login')
+                    }
+                    else{
+                        console.log("USER", user.uid)
+                    }    
                 }
                 else{
                     let _players = res.data().players
@@ -173,7 +192,6 @@ class GameComponent extends React.Component {
 
     render() {
         const { classes } = this.props;
-        console.log("GameState", this.state)
         return(
             <ThemeProvider theme={theme}>
             <div className={classes.main} >
@@ -201,16 +219,18 @@ class GameComponent extends React.Component {
                     </div>
                     : null
                 }
+                <div ref={this.endGameButton}>
                 {
                     this.state.exit ? 
                     <div>
                         <Typography color='error'>This will end the game for all players.</Typography>
-                        <div className={classes.buttonContainer}>
+                        <div  className={classes.buttonContainer}>
                             <Button className={classes.reportSubmit} onClick={(e) => this.onClickCancel(e)} type='submit' variant='contained'>Cancel</Button>
                             <Button className={classes.reportSubmit} onClick={(e) => this.onClickExit(e)} type='submit' variant='contained'>End</Button>
                         </div>
                     </div> : null
                 }
+                </div>
                 {
                     this.state.sending ? <CircularProgress color='secondary'/> : null
                 }
@@ -234,7 +254,6 @@ class GameComponent extends React.Component {
         .then( (res) => {
             this.setState({reportText: '', report: false})
             this.setState({sending: false})
-            console.log("Send Report:", res)
         })
 
     }
@@ -244,12 +263,13 @@ class GameComponent extends React.Component {
 
         this.setState({report: !this.state.report, exit: false})
 
-        console.log("report", this.state.report)
     }
 
     onClickExitGame = (e) => {
         e.preventDefault();
         this.setState({exit: !this.state.exit, report: false})
+        window.scrollTo(0, this.endGameButton.current.offsetTop)
+
     }
 
     onClickExit = (e) => {
@@ -258,10 +278,6 @@ class GameComponent extends React.Component {
         fbService.exitGame(this.state.players, this.state.room)
         .then( res => {
             this.setState({sending: false})
-            console.log("RES", res)
-            // if(res.data.success){
-            //     this.props.history.push('/login')
-            // }
         })
     }
     
@@ -273,7 +289,7 @@ class GameComponent extends React.Component {
 
     stateManager = () => {
         if(this.state.round == 1){
-            if(this.state.name == this.state.judge){
+            if(this.state.user == this.state.currentUser){
                 switch(this.state.gameState){
                     case "LOBBY":
                         return <LobbyComponent 
@@ -331,6 +347,7 @@ class GameComponent extends React.Component {
                         theme={theme} 
                         round={this.state.round} 
                         judge={true} 
+                        judgeName={this.state.judge}
                         room={this.state.room} 
                         players={this.state.players}></ScoringComponent>
     
@@ -382,6 +399,7 @@ class GameComponent extends React.Component {
                         return <ScoringComponent 
                         theme={theme} 
                         round={this.state.round} 
+                        judgeName={this.state.judge}
                         judge={false} 
                         room={this.state.room} 
                         players={this.state.players}></ScoringComponent>
@@ -390,7 +408,7 @@ class GameComponent extends React.Component {
             }
         }
         else if(this.state.round == 2){
-            if(this.state.name == this.state.judge){
+            if(this.state.user == this.state.currentUser){
                 switch(this.state.gameState){
                     case "ROUND2":
                         return <Round2Component 
@@ -438,6 +456,7 @@ class GameComponent extends React.Component {
                         round={this.state.round} 
                         theme={theme} 
                         judge={true} 
+                        judgeName={this.state.judge}
                         room={this.state.room} 
                         players={this.state.players}></ScoringComponent>
 
@@ -481,6 +500,7 @@ class GameComponent extends React.Component {
                         theme={theme} 
                         round={this.state.round} 
                         judge={false} 
+                        judgeName={this.state.judge}
                         room={this.state.room} 
                         players={this.state.players}></ScoringComponent>
     
@@ -488,6 +508,13 @@ class GameComponent extends React.Component {
 
             }
         }
+        else if(this.state.round == 3){
+                return <EndGameComponent
+                theme={theme}
+                room={this.state.room}
+                players={this.state.players}
+                ></EndGameComponent>
+            }
 
     }
 }

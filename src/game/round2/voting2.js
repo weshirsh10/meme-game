@@ -63,7 +63,6 @@ class Voting2Component extends React.Component {
 
 
     render(){
-        console.log("Images", this.state)
         const { classes } = this.props;
         return(
             <ThemeProvider theme={this.props.theme}>

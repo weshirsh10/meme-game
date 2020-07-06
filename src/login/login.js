@@ -62,23 +62,32 @@ class LoginComponent extends React.Component {
     }
 
     componentDidMount() {
-
-       let user = {}
+        
+        let user = {}
         fbService.getUserStatus().onAuthStateChanged(
             user => {
                 //Get User and game from firebase
                 if(user){
-                    console.log("If User", user)
+                    console.log("USER DATA", user.uid)
                     fbService.getUser(user.uid)
                      .then( e => {
                         let data = e.data()
-                        console.log(" Pre If data", data)
                         this.setState({joining: false})
                         if(data){
+                            console.log("Received room Data")
                             this.props.history.push('/game/' + data.room + '/' + data.name )
                         }
+                        else{
+                            window.location.reload(false)
+                            console.log("No room data received")
+                        }
                     })
-
+                }
+                else {
+                    console.log("NO USER DATA")
+                    let currUser = fbService.getCurrentUser()
+       
+                     console.log("No user Current User", currUser)
                 }
             }
         )
@@ -192,11 +201,9 @@ class LoginComponent extends React.Component {
             this.setState({nameError: ""})
             fbService.createRoom(this.state.name)
             .then( (resp) => {
-                console.log("PUSH FROM ENTER")
                 this.props.history.push('/game/' + resp[1]+ "/" + this.state.name)
                 this.setState({joining: false})
             }, dbError =>{
-                console.log("DBerror", dbError)
                 this.setState({joining: false})
             }
              )
@@ -207,7 +214,6 @@ class LoginComponent extends React.Component {
 
     //Join As Player
     onClickEnter = async (e) => {
-        console.log("LOGIN STATE", this.state)
         this.setState({joining: true})
         let valid = await fbService.isJoinValid(this.state.name, this.state.roomCode)
         if(valid != ""){
@@ -232,7 +238,6 @@ class LoginComponent extends React.Component {
 
     onSubmitRoomCode = (e) => {
         e.preventDefault();
-        console.log("submitting Room", this.state.roomCode)
         //Add Player to Room in Firebase    
     }
 }

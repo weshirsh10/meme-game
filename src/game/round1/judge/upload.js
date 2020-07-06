@@ -69,7 +69,9 @@ class UploadComponent extends React.Component {
 
     handleFileUpload = async e => {
         e.preventDefault();
-        this.setState({uploading: true})
+        if(this.state.raw){
+            this.setState({uploading: true})
+        }
         fbService.uploadFile(this.state.raw, this.props.room, this.props.user)
 
     }

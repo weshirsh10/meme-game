@@ -37,12 +37,11 @@ class JudgeWaiting2Component extends React.Component {
         return(
             <ThemeProvider theme={this.props.theme}>
             <div className={classes.uploadArea}>
-            <Typography align='center' component='h1' variant='h2'>Players Submitting Captions</Typography>
+            <Typography align='center' component='h1' variant='h2'>Players Submitting Images</Typography>
             {/* <TimerComponent theme={this.props.theme} startTime={this.props.timestamp} nextState="VOTING" room={this.props.room}/> */}
             {
                       Object.entries(this.props.players).map( (_player) => {
                         if(this.props.user != _player[0]){
-                            console.log(_player[1].imgPath)
                             return(
                                 <div className={classes.waitListItem}>
                                     <Typography component='h2' variant='h4' className={classes.waitPlayerName}>{_player[1].name}</Typography>

@@ -18,6 +18,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import { ThemeProvider } from '@material-ui/core/styles'
+import GradeRoundedIcon from '@material-ui/icons/GradeRounded';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import FirebaseService from '../services/firebase'
@@ -89,7 +90,7 @@ class ScoringComponent extends React.Component {
             {
                 this.props.judge ?
                 <Button id="continueButton" className={classes.submit} type="contained" onClick={e => this.onClickContinue(e)}>Continue</Button> :
-                <Typography style={{margin: '20px'}} align='center' component='h2' variant='h4' color='secondary'>Waiting for judge to continue.</Typography>
+                <Typography style={{margin: '20px'}} align='center' component='h2' variant='h4' color='secondary'>Waiting for {this.props.judgeName} to continue.</Typography>
             }
             
             </div>
@@ -133,8 +134,14 @@ class ScoringComponent extends React.Component {
     renderScoreCard = (players) => {
         let scoreArray = []
         let placed = false
+        let roundWinner = 100
         for(var player in players){
             let i = 0
+            if(players[player].roundScore >= roundWinner){
+                roundWinner = players[player].roundScore
+            }
+
+
             while(!placed){
                 if(scoreArray[i]){
                     if(players[player].points < scoreArray[i].points){
@@ -169,10 +176,19 @@ class ScoringComponent extends React.Component {
                     <TableBody>
                         {
                             scoreArray.map((player) => {
-                                console.log("SCORING", player)
                                 return(
                                 <TableRow>
-                                    <TableCell style={{color: 'white'}}>{player.name}</TableCell>
+                                    <TableCell style={{color: 'white'}}>
+                                        <div className={this.props.classes.reportContainer}>
+                                            {player.name}
+                                            <div className={this.props.classes.starRow}>
+    
+                                                {
+                                                    player.roundScore == roundWinner ? <GradeRoundedIcon color='secondary'/> : null
+                                                }
+                                            </div>
+                                        </div>
+                                    </TableCell>
                                     <TableCell style={{color: 'white'}}> 
                                         {/* {player.roundScore}<br/>{player.voters} */}
                                         <Typography>{player.roundScore}</Typography>

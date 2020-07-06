@@ -76,7 +76,6 @@ class CaptionComponent extends React.Component {
     }
 
     submitState = (classes) => {
-        console.log("CurrentUser", this.state.currentUser)
         if(this.props.players[this.props.currentUser].caption){
             return (<div>
                 Waiting for Other players

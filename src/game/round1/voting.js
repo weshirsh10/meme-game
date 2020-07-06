@@ -173,7 +173,6 @@ class VotingComponent extends React.Component {
     onCLickVote = (e) => {
         e.preventDefault();
         this.setState({voted: true})
-        console.log("VOTERRRR", this.props.currentUser)
         fbService.submitVote(this.props.room, this.state.captions[this.state.captionIndex].player, this.props.judge, this.props.currentUser, this.props.playerPoints)
         
     }
